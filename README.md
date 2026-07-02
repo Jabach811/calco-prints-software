@@ -4,7 +4,9 @@ Digital workspace for the CalCo Prints website, ecommerce planning, product cata
 
 ## Live Website
 
-The public website is built from `Website/index.html` and published with GitHub Pages.
+The public website is served from `index.html` with GitHub Pages.
+
+`Website/index.html` is kept as the working copy inside the website folder. Keep the root `index.html` in sync before publishing updates.
 
 ## Folder Contents
 
