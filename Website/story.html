@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CalCo Prints — From spool to shelf</title>
+<meta name="description" content="The journey of one CalCo print: from a plain spool of filament to a character on your shelf. Follow the line.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&family=Sora:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f6f3ec;
+  --paper-deep:#efeadf;
+  --ink:#33312c;
+  --ink-soft:#6b665b;
+  --muted:#8b8577;
+  --hairline:#e2dccc;
+  --blue:#4da3ff;
+  --blue-deep:#2f7de0;
+  --display:'Fraunces',serif;
+  --body:'Sora',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--body);
+  font-size:17px;
+  line-height:1.65;
+  overflow-x:hidden;
+}
+::selection{background:var(--ink);color:var(--paper)}
+a{color:inherit}
+
+/* paper grain */
+body::after{
+  content:"";position:fixed;inset:0;z-index:40;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- nav ---------- */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 30px;
+  background:linear-gradient(rgba(246,243,236,.96),rgba(246,243,236,.82) 70%,transparent);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.nav-mark{display:flex;align-items:center;gap:11px;text-decoration:none}
+.nav-mark svg{width:26px;height:26px}
+.nav-mark span{font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.14em}
+.nav-back{
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-soft);text-decoration:none;
+  border-bottom:1px solid var(--hairline);padding-bottom:3px;
+  transition:color .2s,border-color .2s;
+}
+.nav-back:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ---------- shared ---------- */
+.wrap{max-width:1160px;margin:0 auto;padding-inline:clamp(22px,5vw,48px)}
+.kicker{
+  font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:22px;
+}
+.kicker b{color:var(--blue-deep);font-weight:400}
+h1,h2{
+  font-family:var(--display);font-weight:300;
+  font-optical-sizing:auto;color:var(--ink);
+  line-height:1.02;letter-spacing:-.025em;
+}
+em{font-style:italic}
+.step h2{font-size:clamp(2.1rem,5.2vw,4rem);margin-bottom:24px}
+.step p{color:var(--ink-soft);max-width:34em}
+.step p strong{color:var(--ink);font-weight:600}
+.spec{
+  display:flex;gap:26px;flex-wrap:wrap;margin-top:30px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);
+  border-top:1px solid var(--hairline);padding-top:16px;max-width:34em;
+}
+.spec b{color:var(--blue-deep);font-weight:400}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- hero ---------- */
+.hero{
+  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+  text-align:center;position:relative;padding:120px 22px 90px;
+}
+.hero .kicker{animation:rise .9s .1s both}
+.hero h1{
+  font-size:clamp(2.9rem,8.5vw,7.6rem);
+  animation:rise .9s .25s both;
+}
+.hero h1 .thread-word{color:var(--blue-deep)}
+.hero-sub{
+  margin:34px auto 0;max-width:34em;color:var(--ink-soft);
+  font-size:clamp(1rem,1.4vw,1.15rem);
+  animation:rise .9s .45s both;
+}
+.hero-cue{
+  position:absolute;bottom:34px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--muted);animation:bob 2.4s ease-in-out infinite;
+}
+@keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(8px)}}
+
+/* ---------- thread connectors ---------- */
+.thread{display:block;width:100%;height:52svh;min-height:300px}
+.thread svg{display:block;width:100%;height:100%}
+.thread .ghost{
+  fill:none;stroke:var(--hairline);stroke-width:1.5;
+  vector-effect:non-scaling-stroke;
+}
+.thread .draw{
+  fill:none;stroke:var(--blue);stroke-width:3.5;stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+}
+
+/* ---------- steps ---------- */
+.step{padding:6vh 0}
+.step .col{width:min(560px,100%)}
+.step.right .col{margin-left:auto;}
+.step.center{text-align:center}
+.step.center .col{margin-inline:auto}
+.step.center p{margin-inline:auto}
+.step.center h2{font-size:clamp(2.4rem,6vw,4.8rem)}
+.handoff{
+  margin-top:44px;font-family:var(--mono);font-size:11px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--muted);
+}
+
+/* ---------- finale ---------- */
+.finale-wrap{height:300svh;position:relative}
+.finale-stage{
+  position:sticky;top:0;height:100svh;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:0 22px;
+}
+.finale-logo{width:min(38svh,62vw);height:auto;display:block}
+.finale-logo path{
+  fill:none;stroke:var(--blue);stroke-width:3.4;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.finale-counter{
+  font-family:var(--mono);font-size:11px;letter-spacing:.26em;color:var(--muted);
+  margin-top:26px;transition:opacity .4s;
+}
+.finale-word{
+  margin-top:30px;opacity:0;transform:translateY(26px);
+}
+.finale-word h2{
+  font-family:var(--display);font-weight:300;letter-spacing:-.02em;
+  font-size:clamp(2.6rem,7.5vw,6.4rem);line-height:1;
+}
+.finale-word p{
+  margin-top:16px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--muted);
+}
+.finale-cta{
+  display:flex;gap:14px;flex-wrap:wrap;justify-content:center;
+  margin-top:40px;opacity:0;transform:translateY(20px);
+}
+.btn{
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  padding:16px 30px;border-radius:999px;text-decoration:none;
+  transition:transform .15s,background .2s,color .2s,border-color .2s;
+}
+.btn-fill{background:var(--ink);color:var(--paper)}
+.btn-fill:hover{transform:translateY(-2px);background:#000}
+.btn-ghost{border:1px solid var(--hairline);color:var(--ink-soft)}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+
+/* ---------- footer / progress ---------- */
+footer{
+  padding:34px 30px;text-align:center;border-top:1px solid var(--hairline);
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);line-height:2;
+}
+footer b{color:var(--blue-deep);font-weight:400}
+.journey-pct{
+  position:fixed;bottom:26px;left:30px;z-index:50;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted);
+}
+@media(max-width:720px){.journey-pct{display:none}}
+
+@media (prefers-reduced-motion: reduce){
+  .hero .kicker,.hero h1,.hero-sub{animation:none}
+  .reveal{opacity:1;transform:none;transition:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-mark" href="index.html" aria-label="CalCo Prints home">
+    <svg viewBox="0 0 40 40" fill="none"><path d="M32 12 L20 5 L8 12 L8 26 L20 33 L32 26 L32 20 L20 27 L14 23 L14 15 L20 11 L26 15" stroke="#2f7de0" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>CALCO PRINTS</span>
+  </a>
+  <a class="nav-back" href="index.html">Back to the shop</a>
+</nav>
+
+<div class="journey-pct">SPOOL → SHELF · <span id="journeyPct">0</span>%</div>
+
+<main>
+
+  <header class="hero">
+    <div class="kicker">CalCo Prints · The journey of one print</div>
+    <h1>It starts with<br>a single <span class="thread-word"><em>strand.</em></span></h1>
+    <p class="hero-sub">Every figure we make begins as one long piece of plastic string.
+    This is the trip it takes — from a plain spool to a character on your shelf. Follow the line.</p>
+    <div class="hero-cue">Scroll to unwind</div>
+  </header>
+
+  <div class="thread" data-from="50" data-to="20" aria-hidden="true">
+    <svg><path class="ghost"/><path class="draw"/></svg>
+  </div>
+
+  <section class="step">
+    <div class="wrap"><div class="col reveal">
+      <div class="kicker"><b>Point A</b> · The spool</div>
+      <h2>One kilometer of plastic, wound up tight.</h2>
+      <p>Filament. It's the raw stuff — a long noodle of PLA that doesn't look like much.
+      No personality. No face. <strong>Not yet.</strong> Every buddy, keychain and habitat
+      in the shop starts exactly here.</p>
+      <div class="spec"><span>MATERIAL <b>PLA</b></span><span>WIDTH <b>1.75 MM</b></span><span>PERSONALITY <b>0% (SO FAR)</b></span></div>
+    </div></div>
+  </section>
+
+  <div class="thread" data-from="20" data-to="80" aria-hidden="true">
+    <svg><path class="ghost"/><path class="draw"/></svg>
+  </div>
+
+  <section class="step right">
+    <div class="wrap"><div class="col reveal">
+      <div class="kicker"><b>Step 01</b> · The idea</div>
+      <h2>Then somebody has an idea.</h2>
+      <p>A doodle in a school notebook. A pet that deserves a statue. An inside joke that
+      needs to be a keychain. Ideas come in weird, and <strong>weird is the good stuff</strong> —
+      we model it on screen until it looks right from every angle.</p>
+    </div></div>
+  </section>
+
+  <div class="thread" data-from="80" data-to="20" aria-hidden="true">
+    <svg><path class="ghost"/><path class="draw"/></svg>
+  </div>
+
+  <section class="step">
+    <div class="wrap"><div class="col reveal">
+      <div class="kicker"><b>Step 02</b> · The print</div>
+      <h2>The printer gets to work.</h2>
+      <p>The strand feeds into a nozzle hotter than your oven and comes out thinner than
+      spaghetti. Layer stacks on layer — hundreds of them — with robot precision.
+      It's basically <strong>a hot glue gun with a brain.</strong></p>
+      <div class="spec"><span>NOZZLE <b>210°C</b></span><span>LAYERS <b>0.2 MM</b></span><span>PATIENCE <b>HOURS</b></span></div>
+    </div></div>
+  </section>
+
+  <div class="thread" data-from="20" data-to="80" aria-hidden="true">
+    <svg><path class="ghost"/><path class="draw"/></svg>
+  </div>
+
+  <section class="step right">
+    <div class="wrap"><div class="col reveal">
+      <div class="kicker"><b>Step 03</b> · The check</div>
+      <h2>Inspected by the CEO.</h2>
+      <p>Every piece gets picked up, turned over and judged — hard. Stringy bits get trimmed,
+      wobbly layers get reprinted. <strong>If it's not cool enough to gift, it doesn't ship.</strong>
+      The CEO is ten. He has time, and he has standards.</p>
+    </div></div>
+  </section>
+
+  <div class="thread" data-from="80" data-to="20" aria-hidden="true">
+    <svg><path class="ghost"/><path class="draw"/></svg>
+  </div>
+
+  <section class="step">
+    <div class="wrap"><div class="col reveal">
+      <div class="kicker"><b>Step 04</b> · The pack</div>
+      <h2>Packed like it matters.</h2>
+      <p>No sad zip-lock bags. Each figure ships with its name, its series and a little card,
+      so opening it feels like <strong>the gift it is</strong> — not like leftovers.</p>
+    </div></div>
+  </section>
+
+  <div class="thread" data-from="20" data-to="50" aria-hidden="true">
+    <svg><path class="ghost"/><path class="draw"/></svg>
+  </div>
+
+  <section class="step center">
+    <div class="wrap"><div class="col reveal">
+      <div class="kicker"><b>Point B</b> · Your shelf</div>
+      <h2>The strand made it.</h2>
+      <p>Now it has a face, a name and a job — living on your desk, hanging off your
+      backpack, judging your homework.</p>
+      <div class="handoff">And the line it traveled ends where every CalCo print ends…</div>
+    </div></div>
+  </section>
+
+  <div class="finale-wrap" id="finale">
+    <div class="finale-stage">
+      <svg class="finale-logo" viewBox="0 0 40 40" aria-label="CalCo Prints logo">
+        <path id="finaleLogo" d="M32 12 L20 5 L8 12 L8 26 L20 33 L32 26 L32 20 L20 27 L14 23 L14 15 L20 11 L26 15"/>
+      </svg>
+      <div class="finale-counter" id="finaleCounter">LAYER 000/036</div>
+      <div class="finale-word" id="finaleWord">
+        <h2>CalCo Prints</h2>
+        <p>Printed small · Collected proudly</p>
+      </div>
+      <div class="finale-cta" id="finaleCta">
+        <a class="btn btn-fill" href="index.html#lineup">See the lineup</a>
+        <a class="btn btn-ghost" href="mailto:hello@calcoprints.com?subject=CalCo%20Prints%20Order">Start an order</a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <b>CALCO PRINTS</b> — designed, printed &amp; quality-checked by Calvin<br>
+  CEO, age 10 · Built with one printer and a lot of filament
+</footer>
+
+<script>
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* reveals */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}
+}),{threshold:.2});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* thread draw-on-scroll — paths are built in pixel space so the
+   dash-draw trick stays one clean continuous stroke */
+const threads=[...document.querySelectorAll('.thread')].map(el=>({
+  el,svg:el.querySelector('svg'),
+  ghost:el.querySelector('.ghost'),draw:el.querySelector('.draw'),
+  from:+el.dataset.from/100,to:+el.dataset.to/100,L:0
+}));
+function buildThreads(){
+  threads.forEach(t=>{
+    const w=t.el.clientWidth,h=t.el.clientHeight;
+    t.svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    const x1=t.from*w,x2=t.to*w;
+    const d=`M${x1},0 C${x1},${h*.52} ${x2},${h*.48} ${x2},${h}`;
+    t.ghost.setAttribute('d',d);
+    t.draw.setAttribute('d',d);
+    t.L=t.draw.getTotalLength();
+    t.draw.style.strokeDasharray=t.L;
+    t.draw.style.strokeDashoffset=reduced?0:t.L;
+  });
+}
+buildThreads();
+
+/* finale */
+const logo=document.getElementById('finaleLogo');
+const logoL=logo.getTotalLength();
+logo.style.strokeDasharray=logoL;
+logo.style.strokeDashoffset=reduced?0:logoL;
+const wrapEl=document.getElementById('finale');
+const counter=document.getElementById('finaleCounter');
+const word=document.getElementById('finaleWord');
+const cta=document.getElementById('finaleCta');
+const pct=document.getElementById('journeyPct');
+
+const clamp01=v=>Math.max(0,Math.min(1,v));
+
+function update(){
+  const vh=innerHeight;
+
+  if(!reduced){
+    threads.forEach(t=>{
+      const r=t.el.getBoundingClientRect();
+      const p=clamp01((vh*.9-r.top)/(r.height+vh*.45));
+      t.draw.style.strokeDashoffset=t.L*(1-p);
+    });
+  }
+
+  const fr=wrapEl.getBoundingClientRect();
+  const P=clamp01(-fr.top/(fr.height-vh));
+  const drawP=reduced?1:clamp01(P/.55);
+  if(!reduced)logo.style.strokeDashoffset=logoL*(1-drawP);
+  const layer=Math.round(drawP*36);
+  counter.textContent='LAYER '+String(layer).padStart(3,'0')+'/036';
+  counter.style.opacity=(P>.5||P===0)?0:1;
+  const wordP=reduced?1:clamp01((P-.5)/.16);
+  word.style.opacity=wordP;
+  word.style.transform=`translateY(${26*(1-wordP)}px)`;
+  const ctaP=reduced?1:clamp01((P-.66)/.14);
+  cta.style.opacity=ctaP;
+  cta.style.transform=`translateY(${20*(1-ctaP)}px)`;
+  cta.style.pointerEvents=ctaP>.5?'auto':'none';
+
+  const doc=document.documentElement;
+  pct.textContent=Math.round(clamp01(scrollY/(doc.scrollHeight-vh))*100);
+}
+addEventListener('scroll',()=>requestAnimationFrame(update),{passive:true});
+addEventListener('resize',()=>{buildThreads();update()});
+update();
+</script>
+</body>
+</html>
