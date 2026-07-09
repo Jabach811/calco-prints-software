@@ -30,6 +30,7 @@ function roomServer() {
 }
 
 export default defineConfig({
+  base: './',
   plugins: [react(), roomServer()],
   server: { port: Number(process.env.PORT) || 5173 },
 });
