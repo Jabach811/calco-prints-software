@@ -482,3 +482,28 @@ button { font-family: inherit; border: none; cursor: pointer; }
   background: rgba(255, 253, 247, 0.9);
   box-shadow: 0 4px 12px rgba(60, 40, 10, 0.25);
 }
+
+/* ---------- gaming corner ---------- */
+.curtain { position: fixed; inset: 0; z-index: 90; display: flex; pointer-events: none; }
+.curtain-half { flex: 1; background: repeating-linear-gradient(90deg, #8a2d9e 0 26px, #7b2490 26px 52px); box-shadow: inset 0 -40px 60px rgba(0, 0, 0, 0.35); }
+.curtain.closing .curtain-l { animation: curtain-in-l 0.65s ease-in forwards; }
+.curtain.closing .curtain-r { animation: curtain-in-r 0.65s ease-in forwards; }
+.curtain.opening .curtain-l { animation: curtain-out-l 0.7s ease-out forwards; }
+.curtain.opening .curtain-r { animation: curtain-out-r 0.7s ease-out forwards; }
+@keyframes curtain-in-l { from { transform: translateX(-101%); } to { transform: translateX(0); } }
+@keyframes curtain-in-r { from { transform: translateX(101%); } to { transform: translateX(0); } }
+@keyframes curtain-out-l { from { transform: translateX(0); } to { transform: translateX(-101%); } }
+@keyframes curtain-out-r { from { transform: translateX(0); } to { transform: translateX(101%); } }
+
+.arcade-screen { position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: radial-gradient(circle at 50% 30%, #35205e, #1a1030 70%); }
+.arcade-title { font-family: 'Baloo 2', sans-serif; font-size: 44px; font-weight: 700; color: #ffe9a8; text-shadow: 0 4px 0 rgba(0, 0, 0, 0.3); }
+.arcade-sub { color: #cbb8f0; font-weight: 700; }
+.arcade-tiles { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; padding: 10px; }
+.arcade-tile { width: 190px; padding: 22px 14px; border-radius: 22px; background: #f7efdd; display: flex; flex-direction: column; align-items: center; gap: 8px; box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25); transition: transform 0.12s; }
+.arcade-tile:not(.locked):hover { transform: translateY(-4px) rotate(-1deg); }
+.arcade-tile.locked { filter: saturate(0.3) brightness(0.75); cursor: default; }
+.tile-icon { font-size: 52px; }
+.tile-name { font-family: 'Baloo 2', sans-serif; font-size: 20px; font-weight: 700; color: #35301f; }
+.tile-tag { font-size: 13px; color: #6b6350; text-align: center; }
+.arcade-back { margin-top: 6px; padding: 10px 22px; border-radius: 999px; background: #f7efdd; font-family: 'Baloo 2', sans-serif; font-size: 17px; font-weight: 700; color: #35301f; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25); }
+.arcade-back:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); }

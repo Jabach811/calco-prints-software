@@ -8,12 +8,17 @@ import { HUD } from './ui/HUD.jsx';
 import { AllPanels } from './ui/Panels.jsx';
 import { IntroOverlay } from './ui/IntroOverlay.jsx';
 import { MobileControls } from './ui/MobileControls.jsx';
+import { ArcadeScreen } from './games/ArcadeScreen.jsx';
+import { Curtain } from './ui/Curtain.jsx';
+import { gameById } from './games/registry.js';
 import { useGame } from './state/store.js';
 import { initAudio } from './systems/audio.js';
 import { startFramePump, SizeSync } from './three/framePump.js';
 
 export default function App() {
   const screen = useGame((s) => s.screen);
+  const arcade = useGame((s) => s.arcade);
+  const ActiveStage = arcade.game ? gameById[arcade.game]?.Stage : null;
 
   useEffect(() => { startFramePump(); }, []);
 
@@ -39,21 +44,24 @@ export default function App() {
               camera={{ position: [0, 3.6, -14], fov: 46, near: 0.1, far: 400 }}
               gl={{ antialias: true }}
             >
-              <color attach="background" args={['#8ed4f7']} />
+              <color attach="background" args={[arcade.open ? '#1a1030' : '#8ed4f7']} />
               <SizeSync />
-              <World />
-              <PlayerController cinematic={screen === 'cinematic'} />
-              {screen === 'cinematic' && <CinematicDriver />}
+              {!arcade.open && <World />}
+              {!arcade.open && <PlayerController cinematic={screen === 'cinematic'} />}
+              {screen === 'cinematic' && !arcade.open && <CinematicDriver />}
+              {ActiveStage && <ActiveStage />}
             </Canvas>
           </div>
           {screen === 'cinematic' && <IntroOverlay />}
-          {screen === 'game' && (
+          {screen === 'game' && !arcade.open && (
             <>
               <HUD />
               <MobileControls />
               <AllPanels />
             </>
           )}
+          {screen === 'game' && arcade.open && <ArcadeScreen />}
+          <Curtain />
         </>
       )}
     </div>
