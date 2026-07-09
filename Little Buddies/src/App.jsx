@@ -1,0 +1,61 @@
+import React, { useEffect } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { World } from './three/World.jsx';
+import { PlayerController } from './three/PlayerController.jsx';
+import { CinematicDriver } from './three/CinematicDriver.jsx';
+import { Creator } from './ui/Creator.jsx';
+import { HUD } from './ui/HUD.jsx';
+import { AllPanels } from './ui/Panels.jsx';
+import { IntroOverlay } from './ui/IntroOverlay.jsx';
+import { MobileControls } from './ui/MobileControls.jsx';
+import { useGame } from './state/store.js';
+import { initAudio } from './systems/audio.js';
+import { startFramePump, SizeSync } from './three/framePump.js';
+
+export default function App() {
+  const screen = useGame((s) => s.screen);
+
+  useEffect(() => { startFramePump(); }, []);
+
+  // audio needs a user gesture; arm it on the first interaction
+  useEffect(() => {
+    const arm = () => { initAudio(); window.removeEventListener('pointerdown', arm); };
+    window.addEventListener('pointerdown', arm);
+    return () => window.removeEventListener('pointerdown', arm);
+  }, []);
+
+  return (
+    <div className="app">
+      {screen === 'creator' ? (
+        <Creator />
+      ) : (
+        <>
+          <div className="canvas-wrap">
+            <Canvas
+              shadows
+              frameloop="never"
+              resize={{ debounce: 0 }}
+              dpr={[1, 1.75]}
+              camera={{ position: [0, 3.6, -14], fov: 46, near: 0.1, far: 400 }}
+              gl={{ antialias: true }}
+            >
+              <color attach="background" args={['#8ed4f7']} />
+              <SizeSync />
+              <World />
+              <PlayerController cinematic={screen === 'cinematic'} />
+              {screen === 'cinematic' && <CinematicDriver />}
+            </Canvas>
+          </div>
+          {screen === 'cinematic' && <IntroOverlay />}
+          {screen === 'game' && (
+            <>
+              <HUD />
+              <MobileControls />
+              <AllPanels />
+            </>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
