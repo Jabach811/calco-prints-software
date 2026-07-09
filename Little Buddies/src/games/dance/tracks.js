@@ -134,6 +134,9 @@ export function startTrack(track) {
   let slot = 0, stopped = false, timer;
   const tick = () => {
     if (stopped) return;
+    // fell badly behind (tab hidden etc.) — skip past slots instead of
+    // dumping all the missed notes at once
+    while (slot < totalSlots && slotTime(slot) < ctx.currentTime - 0.05) slot++;
     // 1.5s lookahead on the audio clock — main-thread hitches can't smear it
     while (slot < totalSlots && slotTime(slot) < ctx.currentTime + 1.5) {
       const t = slotTime(slot), p = slot % 16;
