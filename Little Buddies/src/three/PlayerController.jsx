@@ -8,6 +8,7 @@ import { playerRt, camRt } from '../state/rt.js';
 import { inputRt, bindKeyboard, moveVector } from '../state/input.js';
 import { resolveCollisions } from './colliders.js';
 import { isInPool, SLIDE_CURVE, CLIMB_PATH } from './PoolSlide.jsx';
+import { KIDDIE_CLIMB_CURVE, KIDDIE_SLIDE_CURVE } from './Zones.jsx';
 import { INTERACTABLES, byId } from '../data/interactables.js';
 import { AMBIENT_NPCS } from '../data/npcs.js';
 import { remoteRts } from '../state/rt.js';
@@ -149,7 +150,7 @@ export function PlayerController({ cinematic }) {
   // the slide ride
   useEffect(() => {
     if (!rideRequest) return;
-    ride.current = { phase: 'climb', t0: now() };
+    ride.current = { phase: 'climb', t0: now(), kiddie: rideRequest.id === 'kiddie-slide' };
     playerRt.riding = true;
     inputRt.target = null;
     sfx('whoosh');
@@ -213,33 +214,34 @@ export function PlayerController({ cinematic }) {
     // ----- slide ride sequence -----
     if (ride.current) {
       const r = ride.current;
+      const K = r.kiddie
+        ? { climb: KIDDIE_CLIMB_CURVE, slide: KIDDIE_SLIDE_CURVE, climbT: 1.6, slideT: 1.6, sink: 0.05, xp: 6, coins: 1, toast: 'Wheee! +6 XP', endSfx: 'chime', shake: 0.25 }
+        : { climb: climbCurve, slide: SLIDE_CURVE, climbT: 2.4, slideT: 3.6, sink: 0.6, xp: 12, coins: 2, toast: 'What a ride! +12 XP', endSfx: 'splash', shake: 0.5 };
       const el = t - r.t0;
       if (r.phase === 'climb') {
-        const T = 2.4;
-        const k = Math.min(el / T, 1);
-        const p = climbCurve.getPoint(k);
+        const k = Math.min(el / K.climbT, 1);
+        const p = K.climb.getPoint(k);
         playerRt.x = p.x; playerRt.y = p.y; playerRt.z = p.z;
-        const tan = climbCurve.getTangent(Math.min(k + 0.01, 1));
+        const tan = K.climb.getTangent(Math.min(k + 0.01, 1));
         playerRt.ry = Math.atan2(tan.x, tan.z);
         if (playerRt.anim !== 'walk') { playerRt.anim = 'walk'; playerRt.animT = 0; }
         if (k >= 1) { r.phase = 'slide'; r.t0 = t; sfx('whoosh'); useGame.getState().showBubble('me', 'Wheee!', 2); }
       } else {
-        const T = 3.6;
-        const k = Math.min(el / T, 1);
+        const k = Math.min(el / K.slideT, 1);
         const ease = k < 0.3 ? k * k / 0.3 * 3.33 * 0.3 : k; // slight accel
-        const p = SLIDE_CURVE.getPoint(ease);
-        playerRt.x = p.x; playerRt.y = p.y - 0.6; playerRt.z = p.z;
-        const tan = SLIDE_CURVE.getTangent(Math.min(ease + 0.01, 1));
+        const p = K.slide.getPoint(ease);
+        playerRt.x = p.x; playerRt.y = p.y - K.sink; playerRt.z = p.z;
+        const tan = K.slide.getTangent(Math.min(ease + 0.01, 1));
         playerRt.ry = Math.atan2(tan.x, tan.z);
         if (playerRt.anim !== 'ride') { playerRt.anim = 'ride'; playerRt.animT = 0; }
         if (k >= 1) {
           ride.current = null;
           playerRt.riding = false;
           playerRt.y = 0;
-          camRt.shake = 0.5;
-          sfx('splash');
-          useGame.getState().award({ xp: 12, coins: 2, quiet: true });
-          useGame.getState().addToast('What a ride! +12 XP', '🛝');
+          camRt.shake = K.shake;
+          sfx(K.endSfx);
+          useGame.getState().award({ xp: K.xp, coins: K.coins, quiet: true });
+          useGame.getState().addToast(K.toast, '🛝');
         }
       }
     }

@@ -1,10 +1,11 @@
-// Terrain, waterfall + stream, instanced foliage, clouds, butterflies.
+// Terrain, waterfall + stream, instanced foliage, clouds, birds.
 import * as THREE from 'three';
 import React, { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Instances, Instance } from '@react-three/drei';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { WORLD, ACCENT } from '../data/palette.js';
-import { mat, waterStreakTexture } from './materials.js';
+import { mat, waterStreakTexture, grassTexture } from './materials.js';
 
 const rand = (seed) => {
   // deterministic pseudo-random
@@ -16,21 +17,23 @@ const rand = (seed) => {
 };
 
 export function Ground() {
+  const grass = useMemo(() => { const t = grassTexture(); t.repeat.set(30, 30); return t; }, []);
+  const lawn = useMemo(() => { const t = grassTexture(); t.repeat.set(6, 6); return t; }, []);
   return (
     <group>
       <mesh position={[0, -1.6, 0]} receiveShadow>
         <cylinderGeometry args={[112, 122, 3.2, 56]} />
-        <meshStandardMaterial color={WORLD.grass} roughness={0.9} />
+        <meshStandardMaterial map={grass} color={WORLD.grass} roughness={0.9} />
       </mesh>
       {/* meadow: lighter lawn */}
       <mesh position={[-48, 0.02, 42]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[22, 28]} />
-        <meshStandardMaterial color={WORLD.grassLight} roughness={0.9} />
+        <meshStandardMaterial map={lawn} color={WORLD.grassLight} roughness={0.9} />
       </mesh>
       {/* garden: warm lawn */}
       <mesh position={[35, 0.02, 51]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[20, 28]} />
-        <meshStandardMaterial color="#88c95c" roughness={0.9} />
+        <meshStandardMaterial map={lawn} color="#88c95c" roughness={0.9} />
       </mesh>
       {/* forest hills back edge */}
       {[[-40, -85, 24], [20, -92, 30], [-80, -55, 20], [70, -75, 22], [-95, -10, 16]].map(([x, z, r], i) => (
@@ -43,22 +46,43 @@ export function Ground() {
 }
 
 // ---------- instanced foliage ----------
+// spot arrays live at module scope so colliders.js can read them
+export const PINE_SPOTS = (() => {
+  const r = rand(7);
+  const arr = [];
+  const clusters = [
+    [-60, -70, 14, 8], [-30, -80, 16, 7], [30, -75, 14, 6], [65, -55, 12, 5],
+    [80, -20, 10, 4], [75, 30, 12, 5], [-85, 25, 10, 5], [-70, 60, 12, 5],
+    [-20, 75, 14, 5], [40, 75, 12, 5], [70, 55, 10, 4], [-90, -30, 10, 4],
+  ];
+  clusters.forEach(([cx, cz, cr, n]) => {
+    for (let i = 0; i < n; i++) {
+      arr.push({ x: cx + (r() - 0.5) * cr * 2, z: cz + (r() - 0.5) * cr * 2, s: 0.8 + r() * 0.9 });
+    }
+  });
+  return arr;
+})();
+
+export const LOLLIPOP_SPOTS = (() => {
+  const r = rand(31);
+  const arr = [];
+  [[-24, -28], [26, -40], [-34, 8], [22, 12], [56, 10], [-62, 28], [-28, 56], [12, 62], [52, 62], [30, 28], [-52, 12], [64, 40], [18, 44]].forEach(([x, z]) => {
+    arr.push({ x: x + (r() - 0.5) * 4, z: z + (r() - 0.5) * 4, s: 0.75 + r() * 0.7 });
+  });
+  return arr;
+})();
+
+export const BOULDER_SPOTS = (() => {
+  const r = rand(93);
+  const arr = [];
+  [[-18, -24], [20, -22], [-40, -8], [48, 14], [-58, 52], [-30, 34], [16, 54], [60, 48], [-66, -18], [10, 36], [-12, 60], [30, 62]].forEach(([x, z]) => {
+    for (let i = 0; i < 2; i++) arr.push({ x: x + (r() - 0.5) * 5, z: z + (r() - 0.5) * 5, s: 0.5 + r() * 1.1, ry: r() * 6 });
+  });
+  return arr;
+})();
+
 export function Pines() {
-  const spots = useMemo(() => {
-    const r = rand(7);
-    const arr = [];
-    const clusters = [
-      [-60, -70, 14, 8], [-30, -80, 16, 7], [30, -75, 14, 6], [65, -55, 12, 5],
-      [80, -20, 10, 4], [75, 30, 12, 5], [-85, 25, 10, 5], [-70, 60, 12, 5],
-      [-20, 75, 14, 5], [40, 75, 12, 5], [70, 55, 10, 4], [-90, -30, 10, 4],
-    ];
-    clusters.forEach(([cx, cz, cr, n]) => {
-      for (let i = 0; i < n; i++) {
-        arr.push({ x: cx + (r() - 0.5) * cr * 2, z: cz + (r() - 0.5) * cr * 2, s: 0.8 + r() * 0.9 });
-      }
-    });
-    return arr;
-  }, []);
+  const spots = PINE_SPOTS;
   return (
     <group>
       <Instances range={spots.length} limit={spots.length} castShadow>
@@ -86,14 +110,7 @@ export function Pines() {
 }
 
 export function Lollipops() {
-  const spots = useMemo(() => {
-    const r = rand(31);
-    const arr = [];
-    [[-24, -28], [26, -40], [-34, 8], [22, 12], [56, 10], [-62, 28], [-28, 56], [12, 62], [52, 62], [30, 28], [-52, 12], [64, 40], [18, 44]].forEach(([x, z]) => {
-      arr.push({ x: x + (r() - 0.5) * 4, z: z + (r() - 0.5) * 4, s: 0.75 + r() * 0.7 });
-    });
-    return arr;
-  }, []);
+  const spots = LOLLIPOP_SPOTS;
   return (
     <group>
       <Instances range={spots.length} limit={spots.length} castShadow>
@@ -115,14 +132,7 @@ export function Lollipops() {
 }
 
 export function Boulders() {
-  const spots = useMemo(() => {
-    const r = rand(93);
-    const arr = [];
-    [[-18, -24], [20, -22], [-40, -8], [48, 14], [-58, 52], [-30, 34], [16, 54], [60, 48], [-66, -18], [10, 36], [-12, 60], [30, 62]].forEach(([x, z]) => {
-      for (let i = 0; i < 2; i++) arr.push({ x: x + (r() - 0.5) * 5, z: z + (r() - 0.5) * 5, s: 0.5 + r() * 1.1, ry: r() * 6 });
-    });
-    return arr;
-  }, []);
+  const spots = BOULDER_SPOTS;
   return (
     <Instances range={spots.length} limit={spots.length} castShadow receiveShadow>
       <sphereGeometry args={[1, 10, 8]} />
@@ -135,6 +145,20 @@ export function Boulders() {
 }
 
 const FLOWER_COLORS = [ACCENT.pink, ACCENT.yellow, ACCENT.blue, '#ffffff', ACCENT.red];
+
+// five petals merged into one geometry so a whole flower head is one instance
+const PETAL_HEAD_GEO = (() => {
+  const petals = [];
+  for (let i = 0; i < 5; i++) {
+    const p = new THREE.SphereGeometry(0.11, 7, 5);
+    p.scale(1.5, 0.32, 0.75);
+    p.translate(0.17, 0, 0);
+    p.rotateZ(0.3);
+    p.rotateY((i / 5) * Math.PI * 2);
+    petals.push(p);
+  }
+  return mergeGeometries(petals);
+})();
 
 export function Flowers({ extraBloom }) {
   const spots = useMemo(() => {
@@ -161,17 +185,12 @@ export function Flowers({ extraBloom }) {
         arr.push({
           x: cx + Math.cos(a) * d, z: cz + Math.sin(a) * d,
           c: FLOWER_COLORS[Math.floor(r() * FLOWER_COLORS.length)],
-          s: 0.7 + r() * 0.6, patch: pi,
+          s: 0.75 + r() * 0.5, patch: pi, ry: r() * Math.PI * 2,
         });
       }
     });
     return arr;
   }, []);
-  const heads = useRef();
-  useFrame(({ clock }) => {
-    // whole-field gentle sway
-    if (heads.current) heads.current.rotation.z = Math.sin(clock.elapsedTime * 1.1) * 0.015;
-  });
   const bloomScale = (p) => {
     if (!extraBloom) return 1;
     if (p.patch === 0) return 1 + (extraBloom['flowerbed-plaza'] || 0) * 0.18;
@@ -179,26 +198,41 @@ export function Flowers({ extraBloom }) {
     return 1;
   };
   return (
-    <group ref={heads}>
+    <group>
+      {/* stems */}
       <Instances range={spots.length} limit={spots.length}>
-        <cylinderGeometry args={[0.03, 0.045, 0.4, 5]} />
+        <cylinderGeometry args={[0.035, 0.05, 0.42, 5]} />
         <meshStandardMaterial color="#4f9e3c" roughness={0.8} />
         {spots.map((p, i) => (
-          <Instance key={i} position={[p.x, 0.2 * p.s, p.z]} scale={p.s * bloomScale(p)} />
+          <Instance key={i} position={[p.x, 0.21 * p.s, p.z]} scale={p.s} />
         ))}
       </Instances>
+      {/* a little leaf at the base */}
       <Instances range={spots.length} limit={spots.length}>
-        <sphereGeometry args={[0.17, 8, 6]} />
-        <meshStandardMaterial roughness={0.5} />
+        <sphereGeometry args={[0.07, 6, 4]} />
+        <meshStandardMaterial color="#5cad46" roughness={0.75} />
         {spots.map((p, i) => (
-          <Instance key={i} position={[p.x, (0.42 + 0.05) * p.s * bloomScale(p), p.z]} scale={p.s * bloomScale(p)} color={p.c} />
+          <Instance
+            key={i}
+            position={[p.x + Math.cos(p.ry) * 0.1 * p.s, 0.14 * p.s, p.z + Math.sin(p.ry) * 0.1 * p.s]}
+            scale={[p.s * 1.6, p.s * 0.4, p.s * 0.9]}
+            rotation={[0, p.ry, 0.35]}
+          />
         ))}
       </Instances>
-      <Instances range={spots.length} limit={spots.length}>
-        <sphereGeometry args={[0.06, 6, 5]} />
-        <meshStandardMaterial color="#fff3c2" roughness={0.5} />
+      {/* petal heads */}
+      <Instances geometry={PETAL_HEAD_GEO} range={spots.length} limit={spots.length}>
+        <meshStandardMaterial roughness={0.55} />
         {spots.map((p, i) => (
-          <Instance key={i} position={[p.x, (0.47 + 0.14) * p.s * bloomScale(p), p.z - 0.02]} scale={p.s} />
+          <Instance key={i} position={[p.x, 0.42 * p.s, p.z]} scale={p.s * bloomScale(p)} rotation={[0, p.ry, 0]} color={p.c} />
+        ))}
+      </Instances>
+      {/* golden centers */}
+      <Instances range={spots.length} limit={spots.length}>
+        <sphereGeometry args={[0.075, 8, 6]} />
+        <meshStandardMaterial color="#f5c542" roughness={0.5} />
+        {spots.map((p, i) => (
+          <Instance key={i} position={[p.x, 0.47 * p.s, p.z]} scale={p.s * bloomScale(p)} />
         ))}
       </Instances>
     </group>
@@ -333,40 +367,81 @@ export function Clouds() {
   );
 }
 
-export function Butterflies() {
-  const refs = useRef([]);
-  const flies = useMemo(() => {
-    const r = rand(13);
-    return Array.from({ length: 8 }, (_, i) => ({
-      cx: [-4, 30, -46, 10, 50, -20, 36, 0][i], cz: [10, 48, 40, 28, -4, -34, 54, 52][i],
-      r: 3 + r() * 5, h: 1.4 + r() * 1.2, sp: 0.5 + r() * 0.6, ph: r() * 6,
-      color: i % 2 === 0 ? ACCENT.blue : ACCENT.orange,
-    }));
-  }, []);
+function Bird({ def }) {
+  const root = useRef();
+  const wl = useRef();
+  const wr = useRef();
   useFrame(({ clock }) => {
+    if (!root.current) return;
     const t = clock.elapsedTime;
-    refs.current.forEach((g, i) => {
-      if (!g) return;
-      const f = flies[i];
-      const a = t * f.sp + f.ph;
-      g.position.set(f.cx + Math.cos(a) * f.r, f.h + Math.sin(a * 2.3) * 0.5, f.cz + Math.sin(a) * f.r);
-      g.rotation.y = -a + Math.PI / 2;
-      const flap = Math.sin(t * 16 + f.ph) * 0.8;
-      if (g.children[0]) g.children[0].rotation.z = flap;
-      if (g.children[1]) g.children[1].rotation.z = -flap;
-    });
+    const a = (t * def.sp + def.ph) * def.dir;
+    root.current.position.set(
+      def.cx + Math.cos(a) * def.r,
+      def.h + Math.sin(t * 0.8 + def.ph) * 0.35,
+      def.cz + Math.sin(a) * def.r
+    );
+    root.current.rotation.y = Math.atan2(-Math.sin(a) * def.dir, Math.cos(a) * def.dir);
+    root.current.rotation.z = 0.12 * def.dir; // bank into the turn
+    const flap = Math.sin(t * 9 + def.ph) * 0.5 + 0.12;
+    if (wl.current) wl.current.rotation.z = flap;
+    if (wr.current) wr.current.rotation.z = -flap;
   });
-  return flies.map((f, i) => (
-    <group key={i} ref={(el) => (refs.current[i] = el)}>
-      <mesh material={mat(f.color, 'plastic', { side: THREE.DoubleSide })} position={[0.12, 0, 0]}>
-        <planeGeometry args={[0.24, 0.18]} />
+  return (
+    <group ref={root}>
+      {/* body, facing +z */}
+      <mesh material={mat(def.color, 'plastic')} scale={[0.9, 0.85, 1.2]} castShadow>
+        <sphereGeometry args={[0.26, 12, 10]} />
       </mesh>
-      <mesh material={mat(f.color, 'plastic', { side: THREE.DoubleSide })} position={[-0.12, 0, 0]}>
-        <planeGeometry args={[0.24, 0.18]} />
+      {/* head */}
+      <mesh material={mat(def.color, 'plastic')} position={[0, 0.18, 0.24]}>
+        <sphereGeometry args={[0.16, 12, 10]} />
       </mesh>
-      <mesh material={mat('#333333', 'plastic')}>
-        <capsuleGeometry args={[0.03, 0.12, 4, 6]} />
+      {/* beak */}
+      <mesh material={mat('#F5883C', 'gloss')} position={[0, 0.16, 0.42]} rotation={[Math.PI / 2, 0, 0]}>
+        <coneGeometry args={[0.055, 0.18, 8]} />
+      </mesh>
+      {/* eyes */}
+      {[-1, 1].map((s) => (
+        <mesh key={s} material={mat('#1d1d1d', 'gloss')} position={[s * 0.095, 0.22, 0.34]}>
+          <sphereGeometry args={[0.035, 8, 6]} />
+        </mesh>
+      ))}
+      {/* wings, pivoting at the shoulders */}
+      <group ref={wl} position={[-0.14, 0.1, -0.02]}>
+        <mesh material={mat(def.wing, 'plastic')} position={[-0.2, 0, 0]} scale={[1.8, 0.16, 0.75]}>
+          <sphereGeometry args={[0.17, 10, 8]} />
+        </mesh>
+      </group>
+      <group ref={wr} position={[0.14, 0.1, -0.02]}>
+        <mesh material={mat(def.wing, 'plastic')} position={[0.2, 0, 0]} scale={[1.8, 0.16, 0.75]}>
+          <sphereGeometry args={[0.17, 10, 8]} />
+        </mesh>
+      </group>
+      {/* tail feathers */}
+      <mesh material={mat(def.wing, 'plastic')} position={[0, 0.04, -0.34]} rotation={[-0.3, 0, 0]} scale={[0.7, 0.18, 1.5]}>
+        <sphereGeometry args={[0.13, 8, 6]} />
       </mesh>
     </group>
-  ));
+  );
+}
+
+export function Birds() {
+  const birds = useMemo(() => {
+    const r = rand(13);
+    const colors = [
+      ['#4aa3e8', '#3579b8'], // bluebird
+      ['#e8762e', '#b3541e'], // robin
+      ['#f5c542', '#d19a25'], // goldfinch
+      ['#4aa3e8', '#3579b8'],
+      ['#f08fb5', '#c9628f'], // pink
+      ['#e8762e', '#b3541e'],
+    ];
+    return Array.from({ length: 6 }, (_, i) => ({
+      cx: [-12, 30, -46, 14, 50, -8][i], cz: [6, 46, 36, -24, -14, 58][i],
+      r: 5 + r() * 6, h: 4.6 + r() * 2, sp: 0.32 + r() * 0.28, ph: r() * 6,
+      dir: i % 2 === 0 ? 1 : -1,
+      color: colors[i][0], wing: colors[i][1],
+    }));
+  }, []);
+  return birds.map((b, i) => <Bird key={i} def={b} />);
 }

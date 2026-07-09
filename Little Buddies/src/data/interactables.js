@@ -4,7 +4,7 @@
 export const INTERACTABLES = [
   {
     id: 'checkin-desk', type: 'desk', name: 'Check-in Desk Buddy', icon: '🛎️',
-    pos: [1.5, -48.5], radius: 5, sparkleY: 3.2,
+    pos: [-3.5, -59.5], radius: 5, sparkleY: 2.6,
     actions: [
       { id: 'talk', label: 'Talk', color: 'blue', icon: '💬', anim: 'talk', cooldown: 4 },
       { id: 'gift', label: 'Gift', color: 'green', icon: '🎁', anim: 'gift', cooldown: 30 },
@@ -105,6 +105,15 @@ export const INTERACTABLES = [
     pos: [-24, -40], radius: 5.5, sparkleY: 3,
     actions: [
       { id: 'ride', label: 'Ride', color: 'blue', icon: '🛝', anim: 'ride', cooldown: 10 },
+      { id: 'view', label: 'View', color: 'green', icon: '👁️', anim: 'look', cooldown: 2 },
+      { id: 'cheer', label: 'Cheer', color: 'purple', icon: '⭐', anim: 'cheer', cooldown: 4 },
+    ],
+  },
+  {
+    id: 'kiddie-slide', type: 'slide', name: 'Kiddie Slide', icon: '🛝',
+    pos: [-52, 38], radius: 4.5, sparkleY: 3,
+    actions: [
+      { id: 'ride', label: 'Slide', color: 'blue', icon: '🛝', anim: 'ride', cooldown: 6 },
       { id: 'view', label: 'View', color: 'green', icon: '👁️', anim: 'look', cooldown: 2 },
       { id: 'cheer', label: 'Cheer', color: 'purple', icon: '⭐', anim: 'cheer', cooldown: 4 },
     ],

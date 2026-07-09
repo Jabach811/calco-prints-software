@@ -2,14 +2,13 @@
 import React from 'react';
 import { Hotel } from './Hotel.jsx';
 import { PoolAndSlide } from './PoolSlide.jsx';
-import { Ground, Pines, Lollipops, Boulders, Flowers, Waterfall, Stream, Clouds, Butterflies } from './Nature.jsx';
+import { Ground, Pines, Lollipops, Boulders, Flowers, Waterfall, Stream, Clouds, Birds } from './Nature.jsx';
 import { Paths, Forecourt, Plaza, SpawnPad, FriendshipGarden, GardenPlot, Playground, SnackStand, LampPost, Mailbox, Bench, GlowingMushroom, PathSigns, Sparkle } from './Zones.jsx';
 import { NPCs } from './NPCs.jsx';
 import { Remotes } from './Remotes.jsx';
+import { LAMP_SPOTS } from './colliders.js';
 import { INTERACTABLES } from '../data/interactables.js';
 import { useGame } from '../state/store.js';
-
-const LAMP_SPOTS = [[10, 8], [14, 22], [-22, 20], [4, 40], [24, -26], [-14, -34], [36, 20], [-2, 64]];
 
 function InteractableSparkles() {
   const hidden = useGame((s) => s.world.hiddenSparkles);
@@ -74,7 +73,7 @@ export function World() {
       <Bench pos={[35, 6]} ry={2.4 + Math.PI} id="bench-pool" color="#6f8fc9" />
       <InteractableSparkles />
       <Clouds />
-      <Butterflies />
+      <Birds />
       <NPCs />
       <Remotes />
     </group>

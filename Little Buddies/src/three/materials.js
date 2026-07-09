@@ -95,6 +95,37 @@ export function glowTexture(color = '255,220,140') {
   return new THREE.CanvasTexture(c);
 }
 
+// subtle mottled-grass tile; drawn on white so the mesh color tints it
+export function grassTexture() {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#ffffff';
+  g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 80; i++) {
+    const x = Math.random() * 256, y = Math.random() * 256, r = 14 + Math.random() * 30;
+    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, Math.random() > 0.5 ? 'rgba(25,70,20,0.12)' : 'rgba(255,250,190,0.13)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grad;
+    g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  g.lineWidth = 1.5;
+  for (let i = 0; i < 380; i++) {
+    const x = Math.random() * 250 + 3, y = Math.random() * 250 + 4;
+    g.strokeStyle = Math.random() > 0.5 ? 'rgba(20,60,15,0.20)' : 'rgba(245,255,200,0.20)';
+    g.beginPath();
+    g.moveTo(x, y);
+    g.lineTo(x + (Math.random() * 2 - 1) * 2, y - 2 - Math.random() * 3);
+    g.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
 export function waterStreakTexture() {
   const c = document.createElement('canvas');
   c.width = 128; c.height = 256;

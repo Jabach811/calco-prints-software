@@ -203,7 +203,7 @@ export const useGame = create((set, get) => ({
   // one-shot player animation requests (PlayerController consumes)
   playerAnimReq: null,
   requestAnim(anim, secs = 1.6) { set({ playerAnimReq: { anim, secs, t: now() } }); },
-  rideRequest: 0,
+  rideRequest: null, // {n, id} — id picks which slide
   sitRequest: null,
   floatRequest: null,
 
@@ -428,7 +428,7 @@ export const useGame = create((set, get) => ({
 
       // ---- slide ----
       case 'slide:ride': {
-        set({ rideRequest: get().rideRequest + 1 });
+        set({ rideRequest: { n: (get().rideRequest?.n || 0) + 1, id: objId } });
         get().setMood('Excited');
         get().questStep('slide');
         break;

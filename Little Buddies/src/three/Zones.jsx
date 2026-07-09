@@ -262,6 +262,20 @@ export function GardenPlot() {
 }
 
 // ---------- play meadow ----------
+// kiddie slide placement + the ride paths the player follows on "Slide"
+export const KIDDIE_SLIDE_POS = [-52, 38];
+const KIDDIE_RY = 0.5;
+const kl = (x, y, z) => {
+  const c = Math.cos(KIDDIE_RY), s = Math.sin(KIDDIE_RY);
+  return new THREE.Vector3(KIDDIE_SLIDE_POS[0] + x * c + z * s, y, KIDDIE_SLIDE_POS[1] - x * s + z * c);
+};
+export const KIDDIE_CLIMB_CURVE = new THREE.CatmullRomCurve3([
+  kl(0, 0, -2.6), kl(0, 0.7, -1.7), kl(0, 1.6, -1.25), kl(0, 2.3, -0.6), kl(0, 2.6, 0.2),
+]);
+export const KIDDIE_SLIDE_CURVE = new THREE.CatmullRomCurve3([
+  kl(0, 2.6, 0.4), kl(0, 2.1, 1.1), kl(0, 1.3, 2.2), kl(0, 0.6, 3.1), kl(0, 0.12, 4.3),
+]);
+
 export function Playground() {
   const swing = useRef();
   useFrame(({ clock }) => {
@@ -274,7 +288,7 @@ export function Playground() {
   return (
     <group>
       {/* kiddie slide */}
-      <group position={[-52, 0, 38]} rotation={[0, 0.5, 0]}>
+      <group position={[KIDDIE_SLIDE_POS[0], 0, KIDDIE_SLIDE_POS[1]]} rotation={[0, KIDDIE_RY, 0]}>
         <RoundedBox args={[1.6, 2.2, 1.6]} radius={0.15} position={[0, 1.1, 0]} material={mat(ACCENT.yellow, 'plastic')} castShadow />
         <mesh material={mat('#3D8BFD', 'plastic')} position={[0, 1.55, 1.85]} rotation={[0.62, 0, 0]} castShadow>
           <boxGeometry args={[1.2, 0.12, 3.4]} />

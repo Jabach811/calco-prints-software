@@ -5,7 +5,7 @@ export const DESK_BUDDY = {
   name: 'Check-in Desk Buddy',
   shape: 'ghost', color: 'yellow', eyes: 'plain', brows: 'happy', mouth: 'smile',
   accessory: 'staffcap', temperament: 'Friendly',
-  behavior: 'desk', pos: [1.5, 0, -50.5], face: Math.PI,
+  behavior: 'desk', pos: [-3.5, 0, -64], face: 0,
 };
 
 export const SNACK_BUDDY = {
