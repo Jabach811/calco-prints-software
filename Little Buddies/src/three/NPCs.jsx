@@ -52,7 +52,7 @@ export function NPC({ npc }) {
   const rt = useNpcRt(npc);
   const [thought, setThought] = useState(null);
   const bubble = useGame((s) => s.bubbles[npc.id]);
-  const speed = npc.temperament === 'Energetic' ? 3.4 : npc.temperament === 'Sleepy' || npc.temperament === 'Calm' ? 1.4 : 2.2;
+  const speed = npc.temperament === 'Turbo' ? 3.4 : npc.temperament === 'Sleepy' || npc.temperament === 'Chill' ? 1.4 : 2.2;
 
   // thought bubble scheduler
   useEffect(() => {
@@ -127,7 +127,7 @@ export function NPC({ npc }) {
     }
 
     // friendly ambient NPCs wave at the player
-    if (npc.behavior === 'wander' && (npc.temperament === 'Friendly' || npc.temperament === 'Cheerful')) {
+    if (npc.behavior === 'wander' && (npc.temperament === 'Friendly' || npc.temperament === 'Hyped')) {
       const d = Math.hypot(playerRt.x - rt.x, playerRt.z - rt.z);
       if (d < 4 && t > rt.greetAt) {
         rt.greetAt = t + 30;

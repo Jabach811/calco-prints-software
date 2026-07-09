@@ -25,7 +25,7 @@ export function SnackMenu() {
   return (
     <div className="popup snack-menu">
       <div className="popup-title">Snack Stand</div>
-      <div className="popup-sub">What would you like?</div>
+      <div className="popup-sub">What’ll it be?</div>
       <div className="snack-row">
         {SNACKS.map((s) => (
           <button key={s.id} className="snack-item" onClick={() => useGame.getState().buySnack(s.id)}>
@@ -60,10 +60,10 @@ export function Postcard() {
   if (!pc) return null;
   return (
     <div className="popup postcard">
-      <div className="popup-title">📬 A postcard!</div>
+      <div className="popup-title">📬 Mail!</div>
       <div className="postcard-text">“{pc.text}”</div>
       <div className="postcard-from">— {pc.from}</div>
-      <button className="pill-btn" onClick={() => useGame.setState({ postcard: null })}>Nice!</button>
+      <button className="pill-btn" onClick={() => useGame.setState({ postcard: null })}>Cool</button>
     </div>
   );
 }
@@ -78,7 +78,7 @@ export function Backpack() {
       <div className="tab-row">
         {['stickers', 'collectibles', 'snacks'].map((t) => (
           <button key={t} className={'tab-btn' + (tab === t ? ' active' : '')} onClick={() => setTab(t)}>
-            {t === 'stickers' ? '⭐ Stickers' : t === 'collectibles' ? '🍃 Finds' : '🍿 Snacks'}
+            {t === 'stickers' ? '⭐ Stickers' : t === 'collectibles' ? '💎 Loot' : '🍕 Snacks'}
           </button>
         ))}
       </div>
@@ -125,7 +125,7 @@ export function Backpack() {
           })}
         </div>
       )}
-      <div className="backpack-hint">Tap a sticker to react with it!</div>
+      <div className="backpack-hint">Tap a sticker to use it.</div>
     </Modal>
   );
 }
@@ -141,7 +141,7 @@ export function HomePanel() {
           <div className="door-knob" />
         </div>
       </div>
-      <div className="home-text">Room 107 is being tidied up for decorating.<br />Coming soon!</div>
+      <div className="home-text">Room 107 is still under construction.<br />Coming soon.</div>
     </Modal>
   );
 }
@@ -158,12 +158,12 @@ export function FriendsPanel() {
   return (
     <Modal title="👥 Play with Friends" onClose={close} small>
       {!safety.multiplayer ? (
-        <div className="home-text">A grown-up has turned multiplayer off.</div>
+        <div className="home-text">Multiplayer is turned off in Parent Controls.</div>
       ) : room ? (
         <div className="friends-live">
           <div className="invite-label">Your invite code</div>
           <div className="invite-code">{room.code}</div>
-          <div className="friends-hint">A grown-up can share this code with a friend's grown-up. Friends enter it here to join your room!</div>
+          <div className="friends-hint">Ask a parent to share this code with your friend's parent. They enter it here to join your room.</div>
           <div className="friends-list">
             {Object.entries(remotes).length === 0 ? (
               <div className="friends-empty">Waiting for friends…</div>
@@ -178,7 +178,7 @@ export function FriendsPanel() {
       ) : (
         <div className="friends-setup">
           <button className="pill-btn gold-btn" disabled={netStatus === 'connecting'} onClick={() => useGame.getState().hostRoom()}>
-            {netStatus === 'connecting' ? 'Connecting…' : '✨ Create a Room'}
+            {netStatus === 'connecting' ? 'Connecting…' : 'Create a Room'}
           </button>
           <div className="or-divider">or join a friend</div>
           <div className="join-row">
@@ -210,7 +210,7 @@ export function ParentPanel() {
   const [confirmReset, setConfirmReset] = useState(false);
   if (!open) return null;
   return (
-    <Modal title="🛡️ Grown-Up Controls" onClose={() => useGame.getState().setPanel('parentOpen', false)} small>
+    <Modal title="🛡️ Parent Controls" onClose={() => useGame.getState().setPanel('parentOpen', false)} small>
       <label className="toggle-row">
         <span>Multiplayer (friends-only rooms)</span>
         <input

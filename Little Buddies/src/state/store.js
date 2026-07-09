@@ -13,15 +13,19 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 export const DEFAULT_PROFILE = {
   name: 'Goober',
   shape: 'blob', color: 'green', eyes: 'plain', brows: 'happy', mouth: 'smile',
-  accessory: 'party', hatColor: 'red', temperament: 'Cheerful',
+  accessory: 'party', hatColor: 'red', temperament: 'Hyped',
   stats: { energy: 7, curiosity: 6, friendliness: 8, shyness: 2, playfulness: 8 },
-  favorites: { snack: 'popcorn', activity: 'slide' },
+  favorites: { snack: 'pizza', activity: 'slide' },
 };
 
 // profiles saved before the asset-system rework use retired part ids
 function migrateProfile(p) {
   if (!p) return p;
   const m = { ...p };
+  m.temperament = {
+    Cheerful: 'Hyped', Shy: 'Lowkey', Silly: 'Goofball', Brave: 'Daredevil',
+    Calm: 'Chill', 'Grumpy-but-sweet': 'Grumpy', Energetic: 'Turbo', Imaginative: 'Weird',
+  }[m.temperament] || m.temperament;
   if (m.eyes === 'sunglasses') {
     m.eyes = 'plain';
     if (!m.accessory || m.accessory === 'none') m.accessory = 'sunglasses';
@@ -152,7 +156,7 @@ export const useGame = create((set, get) => ({
     const s = get();
     if (s.progress.quests.find((x) => x.id === q.id)) return;
     set((st) => ({ progress: { ...st.progress, quests: [...st.progress.quests, { ...q, n: 0, done: false }] } }));
-    get().addToast(`New idea: ${q.label}`, '💡', false);
+    get().addToast(`New mission: ${q.label}`, '🎯', false);
     get().persist();
   },
   questStep(id, amt = 1) {
@@ -169,7 +173,7 @@ export const useGame = create((set, get) => ({
     }));
     if (done) {
       setTimeout(() => {
-        get().addToast(`${q.label} — done! +${q.reward.coins} coins`, '🏅');
+        get().addToast(`Mission complete! +${q.reward.coins} coins`, '🏅');
         get().award({ coins: q.reward.coins, xp: 20 });
       }, 500);
     }
@@ -219,7 +223,7 @@ export const useGame = create((set, get) => ({
     set({ cooldowns: { ...s.cooldowns, [key]: now() + act.cooldown } });
     sfx('blip');
 
-    const voice = VOICE[s.profile.temperament] || VOICE.Cheerful;
+    const voice = VOICE[s.profile.temperament] || VOICE.Hyped;
     const say = (text, secs = 3) => { get().showBubble('me', text, secs); playerRt.speak = { text, until: now() + secs }; };
     const objLine = (type) => pick(voice.object[type] || voice.idle);
     const desk = DESK_LINES(s.profile.name);
@@ -239,27 +243,27 @@ export const useGame = create((set, get) => ({
         break;
       }
       case 'desk:gift': {
-        say('A little gift for you! 🎁');
-        setTimeout(() => get().showBubble('npc-desk', 'Aww, for me? Thank you!', 3), 900);
+        say('Got you something. 🎁');
+        setTimeout(() => get().showBubble('npc-desk', 'Whoa, for me? Nice!', 3), 900);
         get().award({ xp: 10 });
         get().setMood('Proud');
         break;
       }
       case 'desk:wave': {
-        say('Hi! 👋');
-        setTimeout(() => get().showBubble('npc-desk', pick(['Hello hello!', `Hi, ${s.profile.name}!`]), 2.6), 700);
+        say('Yo! 👋');
+        setTimeout(() => get().showBubble('npc-desk', pick(['Yo yo!', `Sup, ${s.profile.name}!`]), 2.6), 700);
         break;
       }
       case 'desk:cheer': {
-        say('Woohoo! ⭐');
-        setTimeout(() => get().showBubble('npc-desk', 'Yaaay! Big cheer!', 2.6), 700);
+        say('LET’S GO! 🔥');
+        setTimeout(() => get().showBubble('npc-desk', 'HYPE! I love the energy!', 2.6), 700);
         get().setMood('Excited');
         break;
       }
       case 'desk:bell': {
         sfx('ding');
         get().pokeObject('checkin-desk', 'bell');
-        setTimeout(() => get().showBubble('npc-desk', pick(['Ding ding! How can I help?', 'I LOVE that bell.']), 3), 500);
+        setTimeout(() => get().showBubble('npc-desk', pick(['You rang?', 'That bell is the best part of my job.']), 3), 500);
         get().questStep('bell');
         break;
       }
@@ -267,7 +271,7 @@ export const useGame = create((set, get) => ({
       // ---- flowers ----
       case 'flowers:view': { say(objLine('flowers')); break; }
       case 'flowers:smell': {
-        say(pick(['Mmm… so sweet!', 'These flowers smell nice.', 'Ahh, flowery!']));
+        say(pick(['Smells… green.', 'Not bad. Not bad at all.', 'Achoo. Worth it.']));
         get().setMood('Calm');
         break;
       }
@@ -287,11 +291,11 @@ export const useGame = create((set, get) => ({
           if (!get().progress.flags.flowerSticker) {
             set((st) => ({ progress: { ...st.progress, flags: { ...st.progress.flags, flowerSticker: true } } }));
             get().award({ sticker: 'flower', xp: 12, coins: 5 });
-            get().addToast('Flower Sticker Found!', '🌸');
+            get().addToast('Cactus Sticker unlocked!', '🌵');
             sfx('tada');
           } else {
             get().award({ coins: 5, xp: 8 });
-            get().addToast('+5 coins — the flowers loved that!', '💧');
+            get().addToast('+5 coins — hydration complete!', '💧');
           }
           say(objLine('flowers'));
           get().questStep('water4');
@@ -303,7 +307,7 @@ export const useGame = create((set, get) => ({
         const c = pick(COLLECTIBLES);
         get().award({ collectible: c.id, xp: 6 });
         get().addToast(`${c.name} collected!`, c.icon);
-        say(pick(['Ooh, sparkly!', 'A tiny treasure!']));
+        say(pick(['Loot!', 'Score.']));
         break;
       }
 
@@ -312,32 +316,32 @@ export const useGame = create((set, get) => ({
       case 'mailbox:read': {
         set({
           postcard: pick([
-            { from: 'The Blob Hotel', text: 'Welcome to the Blob Hotel! The pool is extra splashy today. — The Staff' },
-            { from: 'A Secret Friend', text: 'I hid something sparkly along the path. Happy hunting! ✨' },
-            { from: 'Room 104', text: 'The rooftop view is amazing at sunset. Come up sometime!' },
+            { from: 'The Blob Hotel', text: 'Pool’s open. Cannonballs encouraged. — The Staff' },
+            { from: 'Anonymous', text: 'I buried something shiny along the path. Finders keepers. 💎' },
+            { from: 'Room 104', text: 'The rooftop at sunset is undefeated. Bring snacks.' },
           ]),
         });
         break;
       }
       case 'mailbox:shake': {
         get().pokeObject('mailbox', 'wiggle');
-        say(get().world.mailboxGift ? 'Something’s rattling in there!' : 'All quiet in there.');
+        say(get().world.mailboxGift ? 'Something is DEFINITELY moving in there.' : 'Nothing. Suspiciously quiet.');
         break;
       }
       case 'mailbox:open': {
         if (get().world.mailboxGift) {
           const reward = pick([
             { text: 'a Star Sticker!', sticker: 'star', icon: '⭐' },
-            { text: 'a Ducky Sticker!', sticker: 'duck', icon: '🦆' },
+            { text: 'a Rubber Duck Sticker!', sticker: 'duck', icon: '🦆' },
             { text: '15 coins!', coins: 15, icon: '🪙' },
-            { text: 'a Rainbow Sticker!', sticker: 'rainbow', icon: '🌈' },
+            { text: 'a Lightning Sticker!', sticker: 'rainbow', icon: '⚡' },
           ]);
-          set({ giftPopup: { text: 'You got a gift!', reward } });
+          set({ giftPopup: { text: 'Mail loot!', reward } });
           get().setWorld({ mailboxGift: false });
           get().questStep('mailbox');
           setTimeout(() => get().setWorld({ mailboxGift: true }), 90000);
         } else {
-          say('Empty! Check back later.');
+          say('Empty. The dragon must be off duty.');
         }
         break;
       }
@@ -346,14 +350,14 @@ export const useGame = create((set, get) => ({
       case 'lamp:view': { say(objLine('lamp')); break; }
       case 'lamp:shake': {
         get().pokeObject('lamp-plaza', 'flicker');
-        say(pick(['Hehe, the light wiggled!', 'Whoa, glowy!']));
+        say(pick(['It flickered. It’s alive.', 'Was that Morse code?']));
         break;
       }
       case 'lamp:decorate': {
         get().setWorld({ lampDecorated: true });
         get().setMood('Proud');
-        get().addToast('You decorated the lamp post!', '🎀');
-        say('Pretty!');
+        get().addToast('You decked out the lamp post!', '🎨');
+        say('Sick.');
         break;
       }
 
@@ -368,7 +372,7 @@ export const useGame = create((set, get) => ({
       case 'bench:decorate': {
         get().setWorld({ benchDecorated: { ...get().world.benchDecorated, [objId]: true } });
         get().setMood('Proud');
-        get().addToast('Bench decorated with a flower garland!', '🌼');
+        get().addToast('You decked out the bench!', '🎨');
         break;
       }
 
@@ -378,7 +382,7 @@ export const useGame = create((set, get) => ({
         if (get().world.plot === 'empty') {
           get().setWorld({ plot: 'sprouts' });
           get().addToast('Seeds planted!', '🌱');
-          say('Grow, little seeds!');
+          say('Grow. I believe in you.');
         } else say('It’s already growing!');
         break;
       }
@@ -391,8 +395,8 @@ export const useGame = create((set, get) => ({
           playerRt.holding = null;
           if (get().world.plot === 'sprouts') {
             get().setWorld({ plot: 'grown' });
-            get().addToast('The veggies grew big!', '🥕');
-          } else get().addToast('The plot is happy!', '💧');
+            get().addToast('The veggies grew HUGE!', '🥕');
+          } else get().addToast('Watered. Science is happening.', '💧');
           get().award({ xp: 6, coins: 2 });
           get().questStep('water4');
           broadcast();
@@ -404,8 +408,8 @@ export const useGame = create((set, get) => ({
           get().setWorld({ plot: 'empty' });
           get().award({ coins: 8, xp: 10, collectible: 'leaf' });
           get().addToast('Harvested! +8 coins', '🥕');
-          say('Fresh and crunchy!');
-        } else say('Not ready yet… keep watering!');
+          say('Farm to face.');
+        } else say('Not ready yet. Keep watering.');
         break;
       }
 
@@ -422,7 +426,7 @@ export const useGame = create((set, get) => ({
       case 'float:shake': {
         get().pokeObject(objId, 'wiggle');
         sfx('splash');
-        say('Splashy splash!');
+        say('Tidal wave!');
         break;
       }
 
@@ -435,7 +439,7 @@ export const useGame = create((set, get) => ({
       }
       case 'slide:view': { say(objLine('slide')); break; }
       case 'slide:cheer': {
-        say('Go go go! ⭐');
+        say('SEND IT! 🔥');
         get().requestAnim('cheer', 1.6);
         break;
       }
@@ -449,12 +453,12 @@ export const useGame = create((set, get) => ({
       case 'snack:share': {
         get().showBubble('npc-snack', pick(SNACK_LINES.share), 3);
         get().award({ xp: 8 });
-        say('One for you, one for me!');
+        say('Split it. I get the big half.');
         get().setMood('Happy');
         break;
       }
       case 'snack:snackthanks': {
-        say('Thanks! 💜');
+        say('Thanks! 🤘');
         setTimeout(() => get().showBubble('npc-snack', pick(SNACK_LINES.thanks), 3), 800);
         break;
       }
@@ -462,10 +466,10 @@ export const useGame = create((set, get) => ({
       // ---- hidden sparkles ----
       case 'sparkle:pickup': {
         const r = pick([
-          { sticker: 'sparkle', toast: 'Sparkle Sticker Found!', icon: '✨' },
-          { sticker: 'shell', toast: 'Shell Sticker Found!', icon: '🐚' },
-          { collectible: 'pebble', toast: 'Shiny Pebble Found!', icon: '🪨' },
-          { collectible: 'starc', toast: 'Little Star Found!', icon: '⭐' },
+          { sticker: 'sparkle', toast: 'Rare Drop Sticker!', icon: '✨' },
+          { sticker: 'shell', toast: 'Shell Sticker!', icon: '🐚' },
+          { collectible: 'pebble', toast: 'Pet Rock acquired!', icon: '🪨' },
+          { collectible: 'starc', toast: 'Star Shard found!', icon: '⭐' },
         ]);
         get().award({ ...r, xp: 10, coins: 3 });
         get().addToast(r.toast, r.icon);
@@ -477,14 +481,14 @@ export const useGame = create((set, get) => ({
       }
 
       // ---- mushroom ----
-      case 'mushroom:view': { say(pick(['It’s glowing!', 'A little night light!'])); break; }
+      case 'mushroom:view': { say(pick(['It’s glowing. That’s normal, right?', 'Do NOT lick it.'])); break; }
       case 'mushroom:boop': {
         get().pokeObject('mushroom', 'pulse');
         sfx('pop');
-        say(pick(['Boop!', 'Hehe, squishy!']));
+        say(pick(['Poke.', 'It poked back.']));
         if (Math.random() < 0.25) {
           get().award({ sticker: 'sun', xp: 6 });
-          get().addToast('Sunny Sticker Found!', '🌞');
+          get().addToast('Supernova Sticker!', '🌞');
         }
         break;
       }
@@ -508,8 +512,8 @@ export const useGame = create((set, get) => ({
     const npcReact = (anim) => {
       if (npcRt) { npcRt.anim = anim; npcRt.animT = 0; npcRt.oneShotUntil = now() + 1.8; }
     };
-    const myVoice = VOICE[s.profile.temperament] || VOICE.Cheerful;
-    const theirVoice = npc ? VOICE[npc.temperament] || VOICE.Cheerful : null;
+    const myVoice = VOICE[s.profile.temperament] || VOICE.Hyped;
+    const theirVoice = npc ? VOICE[npc.temperament] || VOICE.Hyped : null;
 
     switch (actId) {
       case 'talk': {
@@ -524,7 +528,7 @@ export const useGame = create((set, get) => ({
         get().showBubble('me', 'For you! 🎁', 2.4);
         if (npc) {
           npcReact('hop');
-          setTimeout(() => get().showBubble(id, pick(['Aww, thank you!', 'For ME? Wow!', 'You’re the best!']), 3), 1100);
+          setTimeout(() => get().showBubble(id, pick(['Whoa, thanks!', 'For ME? Legend.', 'Epic. Thanks!']), 3), 1100);
         } else get().sendEvent({ kind: 'phrase', id: 'thanks' });
         get().award({ xp: 8 });
         get().setMood('Proud');
@@ -534,7 +538,7 @@ export const useGame = create((set, get) => ({
         get().requestAnim('wave', 1.6);
         if (npc) {
           npcReact('wave');
-          if (Math.random() < 0.5) setTimeout(() => get().showBubble(id, 'Hi hi! 👋', 2.4), 800);
+          if (Math.random() < 0.5) setTimeout(() => get().showBubble(id, 'Yo! 👋', 2.4), 800);
         } else get().sendEvent({ kind: 'emote', anim: 'wave' });
         break;
       }
@@ -542,7 +546,7 @@ export const useGame = create((set, get) => ({
         get().requestAnim('cheer', 1.6);
         if (npc) {
           npcReact('cheer');
-          setTimeout(() => get().showBubble(id, pick(['Yaaay!', 'Woohoo!', 'Big cheer!']), 2.4), 700);
+          setTimeout(() => get().showBubble(id, pick(['LET’S GO!', 'HYPE!', 'W!']), 2.4), 700);
         } else get().sendEvent({ kind: 'emote', anim: 'cheer' });
         get().setMood('Excited');
         break;
@@ -555,7 +559,7 @@ export const useGame = create((set, get) => ({
     const s = get();
     const snack = SNACKS.find((x) => x.id === snackId);
     if (!snack || s.progress.coins < snack.price) {
-      get().addToast('Not enough coins yet — try watering flowers!', '🪙', false);
+      get().addToast('Not enough coins. Go find some loot!', '🪙', false);
       return;
     }
     set({ snackMenuOpen: false });
@@ -566,7 +570,7 @@ export const useGame = create((set, get) => ({
     get().showBubble('npc-snack', pick(SNACK_LINES.buy[snackId]), 3);
     const fav = s.profile.favorites?.snack === snackId;
     setTimeout(() => {
-      get().showBubble('me', fav ? 'My FAVORITE! Yum yum!' : 'Yum!', 2.4);
+      get().showBubble('me', fav ? 'My FAVORITE. Chef’s kiss.' : 'So good.', 2.4);
       get().setMood(fav ? 'Excited' : 'Happy');
     }, 1200);
     sfx('pop');
@@ -596,16 +600,16 @@ export const useGame = create((set, get) => ({
     setTimeout(() => {
       get().showBubble('npc-desk', desk.reward, 3.4);
       get().award({ coins: 10, xp: 5 });
-      get().addToast('Check-in treat: +10 coins!', '🪙');
+      get().addToast('Daily bonus: +10 coins!', '🪙');
     }, 5400);
     setTimeout(() => {
       get().showBubble('npc-desk', pick(desk.suggest), 4);
       get().offerQuest(pick([
         { id: 'water4', label: 'Water 4 flowers', target: 4, reward: { coins: 20 } },
-        { id: 'slide', label: 'Ride the slide', target: 1, reward: { coins: 15 } },
-        { id: 'mailbox', label: 'Check your mailbox', target: 1, reward: { coins: 10 } },
+        { id: 'slide', label: 'Ride the rooftop slide', target: 1, reward: { coins: 15 } },
+        { id: 'mailbox', label: 'Raid the mailbox', target: 1, reward: { coins: 10 } },
         { id: 'bell', label: 'Ring the desk bell', target: 1, reward: { coins: 10 } },
-        { id: 'pebbles', label: 'Find 3 sparkly spots', target: 3, reward: { coins: 25 } },
+        { id: 'pebbles', label: 'Find 3 loot spots', target: 3, reward: { coins: 25 } },
       ]));
     }, 9400);
   },
@@ -680,7 +684,7 @@ export const useGame = create((set, get) => ({
       get()._startStateLoop();
     } else {
       set({ netStatus: 'off' });
-      get().addToast('Hmm, no room with that code.', '🔎', false);
+      get().addToast('No room with that code.', '🔎', false);
     }
     return res;
   },
@@ -728,7 +732,7 @@ export const useGame = create((set, get) => ({
         const remotes = { ...s.remotes };
         const name = remotes[id]?.name;
         delete remotes[id];
-        if (name) get().addToast(`${name} headed home.`, '👋', false);
+        if (name) get().addToast(`${name} left.`, '👋', false);
         return { remotes };
       });
     });

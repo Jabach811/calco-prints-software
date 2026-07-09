@@ -215,8 +215,8 @@ export function PlayerController({ cinematic }) {
     if (ride.current) {
       const r = ride.current;
       const K = r.kiddie
-        ? { climb: KIDDIE_CLIMB_CURVE, slide: KIDDIE_SLIDE_CURVE, climbT: 1.6, slideT: 1.6, sink: 0.05, xp: 6, coins: 1, toast: 'Wheee! +6 XP', endSfx: 'chime', shake: 0.25 }
-        : { climb: climbCurve, slide: SLIDE_CURVE, climbT: 2.4, slideT: 3.6, sink: 0.6, xp: 12, coins: 2, toast: 'What a ride! +12 XP', endSfx: 'splash', shake: 0.5 };
+        ? { climb: KIDDIE_CLIMB_CURVE, slide: KIDDIE_SLIDE_CURVE, climbT: 1.6, slideT: 1.6, sink: 0.05, xp: 6, coins: 1, toast: 'Not bad! +6 XP', endSfx: 'chime', shake: 0.25 }
+        : { climb: climbCurve, slide: SLIDE_CURVE, climbT: 2.4, slideT: 3.6, sink: 0.6, xp: 12, coins: 2, toast: 'EPIC run! +12 XP', endSfx: 'splash', shake: 0.5 };
       const el = t - r.t0;
       if (r.phase === 'climb') {
         const k = Math.min(el / K.climbT, 1);
@@ -225,7 +225,7 @@ export function PlayerController({ cinematic }) {
         const tan = K.climb.getTangent(Math.min(k + 0.01, 1));
         playerRt.ry = Math.atan2(tan.x, tan.z);
         if (playerRt.anim !== 'walk') { playerRt.anim = 'walk'; playerRt.animT = 0; }
-        if (k >= 1) { r.phase = 'slide'; r.t0 = t; sfx('whoosh'); useGame.getState().showBubble('me', 'Wheee!', 2); }
+        if (k >= 1) { r.phase = 'slide'; r.t0 = t; sfx('whoosh'); useGame.getState().showBubble('me', 'SEND IT!', 2); }
       } else {
         const k = Math.min(el / K.slideT, 1);
         const ease = k < 0.3 ? k * k / 0.3 * 3.33 * 0.3 : k; // slight accel

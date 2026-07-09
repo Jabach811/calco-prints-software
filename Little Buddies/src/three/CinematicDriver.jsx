@@ -53,7 +53,7 @@ export function CinematicDriver() {
         waved.current = true;
         playerRt.anim = 'wave'; playerRt.animT = 0;
         const temperament = useGame.getState().profile?.temperament;
-        useGame.getState().showBubble('me', CATCHPHRASES[temperament] || 'Wow! ⭐', 3.4);
+        useGame.getState().showBubble('me', CATCHPHRASES[temperament] || 'No way! 🔥', 3.4);
       }
       if (t >= 7.4 && !hopped.current) {
         hopped.current = true;

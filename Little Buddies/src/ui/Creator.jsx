@@ -15,18 +15,18 @@ const LINE = '#42222e';
 
 const SHAPES = [
   { id: 'blob', label: 'Blob' },
-  { id: 'mochi', label: 'Mochi' },
+  { id: 'mochi', label: 'Pancake' },
   { id: 'ghost', label: 'Ghost' },
   { id: 'star', label: 'Star' },
-  { id: 'droplet', label: 'Droplet' },
-  { id: 'tofu', label: 'Tofu' },
+  { id: 'droplet', label: 'Drip' },
+  { id: 'tofu', label: 'Block' },
   { id: 'pear', label: 'Pear' },
 ];
 const EYES = [
-  { id: 'plain', label: 'Soft Round' },
+  { id: 'plain', label: 'Round' },
   { id: 'oval', label: 'Oval' },
-  { id: 'wide', label: 'Curious' },
-  { id: 'dot', label: 'Tiny Dots' },
+  { id: 'wide', label: 'Wide' },
+  { id: 'dot', label: 'Dots' },
   { id: 'sleepy', label: 'Sleepy' },
   { id: 'calm', label: 'Calm' },
   { id: 'sparkle', label: 'Starry' },
@@ -41,14 +41,14 @@ const BROWS = [
   { id: 'angry', label: 'Angry' },
 ];
 const MOUTHS = [
-  { id: 'smile', label: 'Big Smile' },
-  { id: 'soft', label: 'Small Smile' },
-  { id: 'grin', label: 'Tiny Grin' },
+  { id: 'smile', label: 'Smile' },
+  { id: 'soft', label: 'Chill' },
+  { id: 'grin', label: 'Grin' },
   { id: 'laugh', label: 'Laugh' },
   { id: 'smirk', label: 'Smirk' },
-  { id: 'o', label: 'Little O' },
-  { id: 'shy', label: 'Shy' },
-  { id: 'neutral', label: 'Neutral' },
+  { id: 'o', label: 'Whoa' },
+  { id: 'shy', label: 'Nervous' },
+  { id: 'neutral', label: 'Flat' },
 ];
 const HATS = [
   { id: 'none', label: 'None' },

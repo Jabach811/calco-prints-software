@@ -42,7 +42,7 @@ function PlayerCard() {
       <div className="coin-pill">🪙 {progress.coins}</div>
       {quest && (
         <div className="quest-pill">
-          💡 {quest.label} <b>{quest.n}/{quest.target}</b>
+          🎯 {quest.label} <b>{quest.n}/{quest.target}</b>
         </div>
       )}
     </div>
@@ -63,7 +63,7 @@ function OnlinePill() {
       {room && <div className="room-chip">Room {room.code}</div>}
       <div className="top-buttons">
         <MuteButton />
-        <button className="round-btn" title="Grown-ups" onClick={() => useGame.getState().setPanel('parentOpen', true)}>🛡️</button>
+        <button className="round-btn" title="Parents" onClick={() => useGame.getState().setPanel('parentOpen', true)}>🛡️</button>
       </div>
     </div>
   );
@@ -114,7 +114,7 @@ const BUDDY_ACTIONS = [
   { id: 'talk', label: 'Talk', color: 'blue', icon: '💬' },
   { id: 'gift', label: 'Gift', color: 'green', icon: '🎁' },
   { id: 'wave', label: 'Wave', color: 'yellow', icon: '👋' },
-  { id: 'cheer', label: 'Cheer', color: 'purple', icon: '⭐' },
+  { id: 'cheer', label: 'Hype', color: 'purple', icon: '🔥' },
 ];
 
 function InteractionCard() {
@@ -158,7 +158,7 @@ function InteractionCard() {
         )}
         <div>
           <div className="card-title">{card.name}</div>
-          <div className="card-prompt">What would you like to do?</div>
+          <div className="card-prompt">Pick a move</div>
         </div>
       </div>
       <div className="card-actions" ref={rowRef}>
@@ -260,7 +260,7 @@ function PhraseBar() {
                 </button>
               ))
             ) : (
-              <span className="phrase-hint">Find stickers to react with!</span>
+              <span className="phrase-hint">Stickers drop out in the world. Go find some.</span>
             ))}
         </div>
         <button className="more-arrow bar-arrow" onClick={() => rowRef.current?.scrollBy({ left: 180, behavior: 'smooth' })}>›</button>
