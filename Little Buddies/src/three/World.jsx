@@ -1,6 +1,7 @@
 // Assembles the whole Blob Hotel resort.
 import React from 'react';
 import { Hotel } from './Hotel.jsx';
+import { Arcade } from './Arcade.jsx';
 import { PoolAndSlide } from './PoolSlide.jsx';
 import { Ground, Pines, Lollipops, Boulders, Flowers, Waterfall, Stream, Clouds, Birds } from './Nature.jsx';
 import { Paths, Forecourt, Plaza, SpawnPad, FriendshipGarden, GardenPlot, Playground, SnackStand, LampPost, Mailbox, Bench, GlowingMushroom, PathSigns, Sparkle } from './Zones.jsx';
@@ -62,6 +63,7 @@ export function World() {
       <GardenPlot />
       <Playground />
       <SnackStand />
+      <Arcade />
       <Mailbox />
       <GlowingMushroom />
       <PathSigns />

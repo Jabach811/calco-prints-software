@@ -20,6 +20,7 @@ const ROUTES = [
   [[0, 14], [4, 24], [0, 36], [-4, 48], [-2, 60]],
   [[-6, -30], [-16, -36], [-24, -40]],
   [[8, -30], [20, -28], [30, -26], [38, -22]],
+  [[40, 20], [47, 16], [53, 11]],
 ];
 
 export function Paths() {
@@ -610,6 +611,7 @@ export function PathSigns() {
           <cylinderGeometry args={[0.1, 0.12, 2.4, 8]} />
         </mesh>
         <SignArrow label="Pool" y={1.9} color="#5f8fc9" />
+        <SignArrow label="Games" y={1.35} color="#7b5cc9" />
       </group>
     </group>
   );

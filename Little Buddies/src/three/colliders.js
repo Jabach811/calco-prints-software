@@ -22,6 +22,8 @@ export const COLLIDERS = [
   [-40, -85, 18], [20, -92, 22], [-80, -55, 15], [70, -75, 16], [-95, -10, 12],
   // snack stand + menu board + umbrella table
   [44.5, 26, 3.2], [43.4, 29.4, 0.9], [41, 24.5, 1.1],
+  // gaming corner arcade
+  [60, 10, 4.8],
   // heart arch posts (walk through the middle)
   [32.5, 42.5, 0.9], [35.5, 42.5, 0.9],
   // ponds
