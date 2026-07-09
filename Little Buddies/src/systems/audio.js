@@ -3,6 +3,11 @@ let ctx = null;
 let master = null;
 let muted = localStorage.getItem('lbw-muted') === '1';
 let started = false;
+let ambientPaused = false;
+
+export function getCtx() { return ctx; }
+export function getMaster() { return master; }
+export function setAmbientPaused(p) { ambientPaused = p; }
 
 export function isMuted() { return muted; }
 
@@ -121,6 +126,11 @@ function startMusic() {
   let nextT = ctx.currentTime + 0.8;
   const tick = () => {
     if (!ctx) return;
+    if (ambientPaused) {
+      nextT = ctx.currentTime + 0.4; // hold the grid so resume doesn't dump missed notes
+      setTimeout(tick, 300);
+      return;
+    }
     if (nextT < ctx.currentTime - 0.05) {
       // fell badly behind (tab hidden etc.) — jump forward on the grid instead
       // of dumping all the missed notes at once
@@ -155,17 +165,19 @@ function startMusic() {
 function startChirps() {
   const chirp = () => {
     if (!ctx) return;
-    const t0 = ctx.currentTime + 0.05;
-    const base = 2200 + Math.random() * 1200;
-    for (let i = 0; i < 2 + Math.floor(Math.random() * 3); i++) {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.type = 'sine';
-      const t = t0 + i * 0.09;
-      o.frequency.setValueAtTime(base, t);
-      o.frequency.exponentialRampToValueAtTime(base * 1.4, t + 0.06);
-      env(g, t, 0.005, 0.02, 0.1);
-      o.connect(g); g.connect(master);
-      o.start(t); o.stop(t + 0.2);
+    if (!ambientPaused) {
+      const t0 = ctx.currentTime + 0.05;
+      const base = 2200 + Math.random() * 1200;
+      for (let i = 0; i < 2 + Math.floor(Math.random() * 3); i++) {
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.type = 'sine';
+        const t = t0 + i * 0.09;
+        o.frequency.setValueAtTime(base, t);
+        o.frequency.exponentialRampToValueAtTime(base * 1.4, t + 0.06);
+        env(g, t, 0.005, 0.02, 0.1);
+        o.connect(g); g.connect(master);
+        o.start(t); o.stop(t + 0.2);
+      }
     }
     setTimeout(chirp, 4000 + Math.random() * 9000);
   };
