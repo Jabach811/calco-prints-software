@@ -664,7 +664,7 @@ export const useGame = create((set, get) => ({
     setTimeout(() => {
       setAmbientPaused(true);
       playerRt.anim = 'dance'; // world presence keeps grooving at the door
-      playerRt.animUntil = 0;
+      playerRt.animT = 0;
       set({ arcade: { open: true, game: null }, curtain: 'opening' });
     }, 650);
     setTimeout(() => set({ curtain: null }), 1400);
@@ -692,7 +692,6 @@ export const useGame = create((set, get) => ({
       get().addToast('Disco Sticker unlocked!', '🪩');
       sfx('tada');
     }
-    get().persist();
   },
 
   // parent/safety controls
