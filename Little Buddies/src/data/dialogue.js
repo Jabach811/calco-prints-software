@@ -297,6 +297,7 @@ export const STICKERS = [
   { id: 'rainbow', name: 'Lightning Sticker', icon: '⚡' },
   { id: 'splash', name: 'Cannonball Sticker', icon: '💦' },
   { id: 'sparkle', name: 'Rare Drop Sticker', icon: '✨' },
+  { id: 'disco', name: 'Disco Sticker', icon: '🪩' },
 ];
 
 export const COLLECTIBLES = [

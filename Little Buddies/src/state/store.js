@@ -4,7 +4,7 @@ import { AMBIENT_NPCS } from '../data/npcs.js';
 import { VOICE, DESK_LINES, SNACK_LINES, STARTER_PHRASES, UNLOCK_PHRASES, STICKERS, COLLECTIBLES, SNACKS } from '../data/dialogue.js';
 import { playerRt, remoteRts, upsertRemoteRt } from './rt.js';
 import { connectTransport } from '../net/transport.js';
-import { sfx } from '../systems/audio.js';
+import { sfx, setAmbientPaused } from '../systems/audio.js';
 import { startIntro } from './introClock.js';
 
 const now = () => performance.now() / 1000;
@@ -493,6 +493,19 @@ export const useGame = create((set, get) => ({
         break;
       }
 
+      // ---- gaming corner ----
+      case 'arcade:enter': {
+        get().enterArcade();
+        break;
+      }
+      case 'arcade:view': {
+        say(pick([
+          'The arcade! Only the Dance Studio is open right now.',
+          'I can hear beats in there. Suspiciously funky beats.',
+        ]));
+        break;
+      }
+
       default: {
         say(pick(voice.idle));
       }
@@ -640,6 +653,47 @@ export const useGame = create((set, get) => ({
   // ---------- panels ----------
   backpackOpen: false, homeOpen: false, friendsOpen: false, parentOpen: false,
   setPanel(k, v) { set({ [k]: v }); },
+
+  // ---------- gaming corner ----------
+  arcade: { open: false, game: null }, // game: registry id while one is mounted
+  curtain: null, // 'closing' | 'opening' | null
+  enterArcade() {
+    if (get().curtain) return;
+    set({ curtain: 'closing' });
+    sfx('whoosh');
+    setTimeout(() => {
+      setAmbientPaused(true);
+      playerRt.anim = 'dance'; // world presence keeps grooving at the door
+      playerRt.animUntil = 0;
+      set({ arcade: { open: true, game: null }, curtain: 'opening' });
+    }, 650);
+    setTimeout(() => set({ curtain: null }), 1400);
+  },
+  exitArcade() {
+    if (get().curtain) return;
+    set({ curtain: 'closing' });
+    setTimeout(() => {
+      setAmbientPaused(false);
+      playerRt.anim = 'idle';
+      playerRt.animT = 0;
+      set({ arcade: { open: false, game: null }, curtain: 'opening' });
+    }, 650);
+    setTimeout(() => set({ curtain: null }), 1400);
+  },
+  launchGame(id) { set({ arcade: { open: true, game: id } }); sfx('blip'); },
+  quitToArcade() { set({ arcade: { open: true, game: null } }); },
+  finishDance({ grade, song }) {
+    const coins = { S: 25, A: 18, B: 12, C: 5 }[grade] || 5;
+    get().award({ coins, xp: 15 });
+    get().addToast(`${song}: grade ${grade}! +${coins} coins`, '🕺');
+    if (!get().progress.flags.discoSticker) {
+      set((st) => ({ progress: { ...st.progress, flags: { ...st.progress.flags, discoSticker: true } } }));
+      get().award({ sticker: 'disco', xp: 10 });
+      get().addToast('Disco Sticker unlocked!', '🪩');
+      sfx('tada');
+    }
+    get().persist();
+  },
 
   // parent/safety controls
   safety: load('lbw-safety', { multiplayer: true, phraseBar: true }) || { multiplayer: true, phraseBar: true },

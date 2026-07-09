@@ -129,6 +129,14 @@ export const INTERACTABLES = [
     ],
   },
   {
+    id: 'arcade', type: 'arcade', name: 'Gaming Corner', icon: '🕹️',
+    pos: [55, 10], radius: 5.5, sparkleY: 3.4,
+    actions: [
+      { id: 'enter', label: 'Go In', color: 'blue', icon: '🕹️', anim: 'hop', cooldown: 2 },
+      { id: 'view', label: 'View', color: 'green', icon: '👁️', anim: 'look', cooldown: 2 },
+    ],
+  },
+  {
     id: 'sparkle-1', type: 'sparkle', name: 'Loot Spot', icon: '💎',
     pos: [-14, 30], radius: 3.5, sparkleY: 1,
     actions: [{ id: 'pickup', label: 'Grab', color: 'purple', icon: '💎', anim: 'pick', cooldown: 120 }],
