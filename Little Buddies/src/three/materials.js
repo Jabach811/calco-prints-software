@@ -58,18 +58,6 @@ export function stripeTexture(colors = ['#3D8BFD', '#FFFFFF'], reps = 8, vertica
   return t;
 }
 
-export function rainbowTexture() {
-  const c = document.createElement('canvas');
-  c.width = 64; c.height = 256;
-  const g = c.getContext('2d');
-  const cols = ['#EF4444', '#F5883C', '#FFD23F', '#54C24E', '#3D8BFD', '#9B5DE5'];
-  cols.forEach((col, i) => {
-    g.fillStyle = col;
-    g.fillRect(0, (i * 256) / 6, 64, 256 / 6 + 1);
-  });
-  return new THREE.CanvasTexture(c);
-}
-
 export function sparkleTexture() {
   const c = document.createElement('canvas');
   c.width = 128; c.height = 128;

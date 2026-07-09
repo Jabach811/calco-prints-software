@@ -399,13 +399,15 @@ button { font-family: inherit; border: none; cursor: pointer; }
   box-shadow: 0 6px 16px rgba(90, 60, 20, 0.16);
 }
 .creator-name-text { font-family: 'Baloo 2', sans-serif; font-size: 26px; font-weight: 700; color: #35301f; min-width: 120px; text-align: center; }
+.shuffle-btn { color: #8a7f66; }
+.shuffle-btn:hover { color: #35301f; }
 .creator-right {
-  width: min(520px, 50vw); background: rgba(255, 253, 247, 0.88);
-  border-radius: 28px; padding: 20px 22px; overflow-y: auto;
+  width: min(560px, 52vw); background: rgba(255, 253, 247, 0.9);
+  border-radius: 28px; padding: 22px 24px 24px; overflow-y: auto;
   box-shadow: 0 12px 32px rgba(90, 60, 20, 0.18);
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex; flex-direction: column; gap: 20px;
 }
-.creator-label { font-weight: 800; font-size: 13px; color: #8a7f66; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.creator-label { font-weight: 800; font-size: 12px; color: #a0937a; text-transform: uppercase; letter-spacing: 1.6px; margin-bottom: 8px; }
 .chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
 .choice-chip {
   background: #f3ecd9; border-radius: 999px; padding: 8px 15px;
@@ -416,6 +418,28 @@ button { font-family: inherit; border: none; cursor: pointer; }
 .choice-chip.active { background: #fff; border-color: #ffd23f; color: #35301f; }
 .swatch { width: 40px; height: 40px; border-radius: 50%; border: 4px solid rgba(255, 255, 255, 0.6); transition: transform 0.1s ease; }
 .swatch.active { border-color: #35301f; transform: scale(1.12); }
+.swatch.small { width: 28px; height: 28px; border-width: 3px; }
+.swatch.small.active { transform: scale(1.15); }
+
+/* option tiles */
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
+.part-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  background: #f6efdd; border-radius: 16px; padding: 9px 4px 7px;
+  border: 2.5px solid transparent;
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+.part-tile:hover { transform: translateY(-2px); }
+.part-tile.active { background: #fff; border-color: #ffd23f; }
+.part-tile.active .part-name { color: #35301f; }
+.tile-svg { width: 46px; height: 32px; display: block; }
+.part-name { font-weight: 800; font-size: 10.5px; color: #8a7f66; line-height: 1.1; text-align: center; }
+.hat-color-row {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 7px;
+  margin-top: 10px; padding: 9px 12px;
+  background: #f6efdd; border-radius: 14px;
+}
+.hat-color-label { font-weight: 800; font-size: 11px; color: #a0937a; text-transform: uppercase; letter-spacing: 1.2px; margin-right: 4px; }
 .enter-world-btn {
   margin-top: 6px;
   background: linear-gradient(180deg, #62d356, #3fae35);
@@ -429,9 +453,11 @@ button { font-family: inherit; border: none; cursor: pointer; }
 
 @media (max-width: 760px) {
   .creator { flex-direction: column; padding: 14px; gap: 12px; }
-  .creator-left { width: 100%; }
-  .creator-preview { min-height: 180px; }
-  .creator-right { width: 100%; flex: 1; }
+  .creator-left { width: 100%; flex: none; }
+  /* fixed height: the canvas sizes itself from its parent, so an auto-height
+     parent + flex child feedback-loops the preview bigger every frame */
+  .creator-preview { flex: none; height: 250px; min-height: 0; }
+  .creator-right { width: 100%; flex: 1; min-height: 0; }
   .online-label { display: none; }
   .hud-bottomleft { flex-direction: column; gap: 8px; }
   .big-btn { width: 62px; height: 62px; font-size: 10.5px; border-radius: 18px; }

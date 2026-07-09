@@ -9,6 +9,18 @@ export const ACCENT = {
   yellow: '#FFD23F',
 };
 
+// Hat/accessory colors — picked separately from body color in the creator.
+export const HAT_COLORS = {
+  red: '#EF4444',
+  gold: '#F5C542',
+  green: '#54C24E',
+  blue: '#3D8BFD',
+  purple: '#9B5DE5',
+  pink: '#F15BB5',
+  cream: '#F6F2EA',
+  midnight: '#454052',
+};
+
 export const WORLD = {
   leaf: '#A8D96C',
   leafDark: '#6FBF4A',

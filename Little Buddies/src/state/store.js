@@ -13,10 +13,28 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 export const DEFAULT_PROFILE = {
   name: 'Goober',
   shape: 'blob', color: 'green', eyes: 'plain', brows: 'happy', mouth: 'smile',
-  accessory: 'partyhat', temperament: 'Cheerful',
+  accessory: 'party', hatColor: 'red', temperament: 'Cheerful',
   stats: { energy: 7, curiosity: 6, friendliness: 8, shyness: 2, playfulness: 8 },
   favorites: { snack: 'popcorn', activity: 'slide' },
 };
+
+// profiles saved before the asset-system rework use retired part ids
+function migrateProfile(p) {
+  if (!p) return p;
+  const m = { ...p };
+  if (m.eyes === 'sunglasses') {
+    m.eyes = 'plain';
+    if (!m.accessory || m.accessory === 'none') m.accessory = 'sunglasses';
+  }
+  m.brows = { determined: 'angry', grumpy: 'angry' }[m.brows] || m.brows;
+  const hat = { partyhat: 'party', rainbowhat: 'party', crowngold: 'crown', crownwhite: 'crown' }[m.accessory];
+  if (hat) {
+    m.hatColor = m.accessory === 'crowngold' ? 'gold' : m.accessory === 'crownwhite' ? 'cream' : 'red';
+    m.accessory = hat;
+  }
+  if (!m.hatColor) m.hatColor = 'red';
+  return m;
+}
 
 const DEFAULT_PROGRESS = {
   coins: 205, xp: 40, level: 7,
@@ -46,7 +64,7 @@ if (bootScreen === 'cinematic') startIntro();
 export const useGame = create((set, get) => ({
   // ---------- screens ----------
   screen: bootScreen,
-  profile: load('lbw-profile', DEFAULT_PROFILE) || DEFAULT_PROFILE,
+  profile: migrateProfile(load('lbw-profile', DEFAULT_PROFILE)) || DEFAULT_PROFILE,
   progress: load('lbw-progress', DEFAULT_PROGRESS) || { ...DEFAULT_PROGRESS },
 
   setProfile(profile) {

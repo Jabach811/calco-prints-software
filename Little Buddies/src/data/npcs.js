@@ -11,24 +11,24 @@ export const DESK_BUDDY = {
 export const SNACK_BUDDY = {
   id: 'npc-snack',
   name: 'Snack Stand Buddy',
-  shape: 'ghost', color: 'yellow', eyes: 'plain', brows: 'happy', mouth: 'grin',
+  shape: 'ghost', color: 'yellow', eyes: 'plain', brows: 'happy', mouth: 'laugh',
   accessory: 'staffcap', temperament: 'Cheerful',
   behavior: 'desk', pos: [46.4, 0, 26], face: -Math.PI / 2,
 };
 
 export const AMBIENT_NPCS = [
-  { id: 'npc-1', name: 'Pip', shape: 'star', color: 'red', eyes: 'plain', brows: 'determined', mouth: 'buck', accessory: 'crownwhite', temperament: 'Energetic', behavior: 'wander', zone: 'plaza', pos: [-8, 0, -20] },
-  { id: 'npc-2', name: 'Boba', shape: 'ghost', color: 'yellow', eyes: 'plain', brows: 'grumpy', mouth: 'o', accessory: 'none', temperament: 'Grumpy-but-sweet', behavior: 'wander', zone: 'forecourt', pos: [14, 0, -30] },
-  { id: 'npc-3', name: 'Momo', shape: 'blob', color: 'purple', eyes: 'plain', brows: 'happy', mouth: 'smile', accessory: 'none', temperament: 'Calm', behavior: 'bench', zone: 'poolside', pos: [34.4, 0.35, 5.45], face: 2.4 },
-  { id: 'npc-4', name: 'Ziggy', shape: 'droplet', color: 'blue', eyes: 'plain', brows: 'happy', mouth: 'smile', accessory: 'crowngold', temperament: 'Imaginative', behavior: 'wander', zone: 'hotelpath', pos: [18, 0, -44] },
-  { id: 'npc-5', name: 'Sunny', shape: 'ghost', color: 'orange', eyes: 'sunglasses', brows: 'happy', mouth: 'grin', accessory: 'none', temperament: 'Cheerful', behavior: 'lounge', zone: 'pool', pos: [63, 0, -2] },
-  { id: 'npc-6', name: 'Jelly', shape: 'blob', color: 'pink', eyes: 'sparkle', brows: 'happy', mouth: 'smile', accessory: 'none', temperament: 'Friendly', behavior: 'wander', zone: 'garden', pos: [30, 0, 46] },
-  { id: 'npc-7', name: 'Squish', shape: 'star', color: 'yellow', eyes: 'sparkle', brows: 'happy', mouth: 'grin', accessory: 'none', temperament: 'Silly', behavior: 'wander', zone: 'meadow', pos: [-46, 0, 40] },
-  { id: 'npc-8', name: 'Bloop', shape: 'blob', color: 'blue', eyes: 'plain', brows: 'happy', mouth: 'o', accessory: 'none', temperament: 'Curious', behavior: 'swim', zone: 'pool', pos: [56, 0, -18], float: 'ring' },
-  { id: 'npc-9', name: 'Twinkle', shape: 'star', color: 'red', eyes: 'plain', brows: 'determined', mouth: 'grin', accessory: 'partyhat', temperament: 'Brave', behavior: 'swim', zone: 'pool', pos: [48, 0, -24], float: 'duck' },
-  { id: 'npc-10', name: 'Clover', shape: 'blob', color: 'green', eyes: 'plain', brows: 'happy', mouth: 'smile', accessory: 'rainbowhat', temperament: 'Sleepy', behavior: 'bench', zone: 'garden', pos: [40.4, 0.35, 58.55], face: -2.2 },
-  { id: 'npc-11', name: 'Puff', shape: 'ghost', color: 'purple', eyes: 'plain', brows: 'happy', mouth: 'o', accessory: 'partyhat', temperament: 'Shy', behavior: 'balcony', pos: [-12, 6.4, -52.2] },
-  { id: 'npc-12', name: 'Pudding', shape: 'blob', color: 'yellow', eyes: 'plain', brows: 'happy', mouth: 'smile', accessory: 'crowngold', temperament: 'Curious', behavior: 'balcony', pos: [10, 9.6, -52.2] },
+  { id: 'npc-1', name: 'Pip', shape: 'star', color: 'red', eyes: 'wide', brows: 'happy', mouth: 'laugh', accessory: 'crown', hatColor: 'cream', temperament: 'Energetic', behavior: 'wander', zone: 'plaza', pos: [-8, 0, -20] },
+  { id: 'npc-2', name: 'Boba', shape: 'ghost', color: 'yellow', eyes: 'calm', brows: 'angry', mouth: 'neutral', accessory: 'none', temperament: 'Grumpy-but-sweet', behavior: 'wander', zone: 'forecourt', pos: [14, 0, -30] },
+  { id: 'npc-3', name: 'Momo', shape: 'mochi', color: 'purple', eyes: 'calm', brows: 'neutral', mouth: 'soft', accessory: 'none', temperament: 'Calm', behavior: 'bench', zone: 'poolside', pos: [34.4, 0.35, 5.45], face: 2.4 },
+  { id: 'npc-4', name: 'Ziggy', shape: 'droplet', color: 'blue', eyes: 'sparkle', brows: 'curious', mouth: 'o', accessory: 'wizard', hatColor: 'purple', temperament: 'Imaginative', behavior: 'wander', zone: 'hotelpath', pos: [18, 0, -44] },
+  { id: 'npc-5', name: 'Sunny', shape: 'ghost', color: 'orange', eyes: 'plain', brows: 'happy', mouth: 'smile', accessory: 'sunglasses', temperament: 'Cheerful', behavior: 'lounge', zone: 'pool', pos: [63, 0, -2] },
+  { id: 'npc-6', name: 'Jelly', shape: 'pear', color: 'pink', eyes: 'sparkle', brows: 'happy', mouth: 'smile', accessory: 'none', temperament: 'Friendly', behavior: 'wander', zone: 'garden', pos: [30, 0, 46] },
+  { id: 'npc-7', name: 'Squish', shape: 'star', color: 'yellow', eyes: 'mischief', brows: 'curious', mouth: 'laugh', accessory: 'tophat', hatColor: 'midnight', temperament: 'Silly', behavior: 'wander', zone: 'meadow', pos: [-46, 0, 40] },
+  { id: 'npc-8', name: 'Bloop', shape: 'blob', color: 'blue', eyes: 'wide', brows: 'surprised', mouth: 'o', accessory: 'none', temperament: 'Curious', behavior: 'swim', zone: 'pool', pos: [56, 0, -18], float: 'ring' },
+  { id: 'npc-9', name: 'Twinkle', shape: 'star', color: 'red', eyes: 'plain', brows: 'angry', mouth: 'grin', accessory: 'party', hatColor: 'blue', temperament: 'Brave', behavior: 'swim', zone: 'pool', pos: [48, 0, -24], float: 'duck' },
+  { id: 'npc-10', name: 'Clover', shape: 'tofu', color: 'green', eyes: 'sleepy', brows: 'neutral', mouth: 'shy', accessory: 'beanie', hatColor: 'green', temperament: 'Sleepy', behavior: 'bench', zone: 'garden', pos: [40.4, 0.35, 58.55], face: -2.2 },
+  { id: 'npc-11', name: 'Puff', shape: 'ghost', color: 'purple', eyes: 'plain', brows: 'sad', mouth: 'shy', accessory: 'party', hatColor: 'pink', temperament: 'Shy', behavior: 'balcony', pos: [-12, 6.4, -52.2] },
+  { id: 'npc-12', name: 'Pudding', shape: 'mochi', color: 'yellow', eyes: 'plain', brows: 'curious', mouth: 'soft', accessory: 'crown', hatColor: 'gold', temperament: 'Curious', behavior: 'balcony', pos: [10, 9.6, -52.2] },
 ];
 
 // waypoint sets by zone for wanderers
