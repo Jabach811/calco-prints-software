@@ -140,7 +140,9 @@ nav{
   position:sticky;top:0;height:100svh;overflow:hidden;
   background:radial-gradient(ellipse 80% 60% at 50% 62%,#0d1a2e,var(--bg) 75%);
 }
-#buildCanvas{position:absolute;inset:0;width:100%;height:100%}
+#buildCanvas{
+  position:absolute;inset:0;width:100%;height:100%;
+}
 .hud{
   position:absolute;top:84px;left:28px;
   font-family:var(--mono);font-size:12px;color:var(--blue);letter-spacing:.1em;
@@ -232,13 +234,20 @@ section{padding:110px 24px;max-width:1160px;margin:0 auto}
   background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   max-width:none;
 }
-.lab-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.lab-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
 @media(max-width:860px){.lab-inner{grid-template-columns:1fr;gap:40px}}
 .lab-preview{
   background:radial-gradient(ellipse 70% 60% at 50% 45%,rgba(77,163,255,.1),transparent 70%),var(--panel);
   border:1px solid var(--line);border-radius:18px;padding:30px 20px 22px;
-  display:flex;flex-direction:column;align-items:center;
+  display:flex;flex-direction:column;align-items:center;position:sticky;top:84px;
 }
+.speech-bubble{
+  position:absolute;top:16px;left:50%;transform:translateX(-50%) translateY(6px);
+  background:var(--bg2);border:1px solid var(--blue-deep);border-radius:10px;
+  padding:8px 14px;font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--ink);
+  white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .18s,transform .18s;z-index:2;
+}
+.speech-bubble.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .lab-preview svg{width:min(320px,80%);height:auto}
 #buddyBody{transition:fill .3s}
 .lab-readout{
@@ -281,6 +290,41 @@ section{padding:110px 24px;max-width:1160px;margin:0 auto}
 .lab-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
 .btn-sm{padding:13px 22px;font-size:12px;cursor:pointer;border:none;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase}
 .lab-note{font-size:14px;color:var(--ink-dim);margin-top:24px;max-width:420px}
+.btn-surprise{
+  width:100%;max-width:300px;margin-bottom:4px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  padding:14px 18px;border-radius:6px;border:1px dashed var(--orange);
+  background:transparent;color:var(--orange);cursor:pointer;transition:all .2s;
+}
+.btn-surprise:hover{background:rgba(255,138,42,.08);transform:rotate(-1.2deg) scale(1.03)}
+.buddy-card{
+  width:100%;margin-top:20px;border:1px solid var(--line);border-radius:10px;
+  background:var(--bg2);padding:16px 18px;font-family:var(--mono);text-align:left;
+}
+.bc-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
+.bc-title{font-size:10px;letter-spacing:.24em;color:var(--ink-dim)}
+.bc-rarity{font-size:10px;letter-spacing:.18em}
+.bc-row{font-size:11px;letter-spacing:.05em;color:var(--ink-dim);padding:3px 0;line-height:1.6}
+.bc-row b{color:var(--ink);font-weight:400}
+.bc-label{color:var(--blue)}
+.bc-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:10px;padding-top:10px}
+.bc-power{font-size:11px;letter-spacing:.14em;color:var(--ink)}
+.bc-power b{color:var(--blue);font-weight:400}
+.bc-shuffle{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--ink-dim);
+  padding:6px 10px;cursor:pointer;transition:all .2s;
+}
+.bc-shuffle:hover{border-color:var(--blue);color:var(--ink)}
+#buddyRig{transform-box:view-box;transform-origin:150px 222px;cursor:pointer}
+#buddyMouth{transform-box:view-box;transform-origin:150px 176px}
+#buddyMouth.talk{animation:talk .12s infinite alternate}
+@keyframes talk{from{transform:scaleY(1)}to{transform:scaleY(.45)}}
+#buddyRig.boing{animation:boing .45s ease}
+@keyframes boing{0%{transform:scale(1,1)}30%{transform:scale(1.08,.9)}60%{transform:scale(.94,1.06)}100%{transform:scale(1,1)}}
+#buddyFace{transition:transform .15s ease-out}
+#buddyEyes{transform-box:view-box;transform-origin:150px 145px;transition:transform .1s}
+#buddyEyes.blink{transform:scaleY(.08)}
 
 /* ---------- squad orders ---------- */
 .tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -330,10 +374,24 @@ section{padding:110px 24px;max-width:1160px;margin:0 auto}
 
 /* ---------- footer ---------- */
 footer{
-  border-top:1px solid var(--line);padding:38px 28px;text-align:center;
+  border-top:1px solid var(--line);padding:56px 28px 44px;text-align:center;
   font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--ink-dim);line-height:2;
 }
 footer b{color:var(--blue);font-weight:400}
+.foot-core{position:relative;width:90px;height:90px;margin:0 auto 26px}
+.foot-core::before{
+  content:"";position:absolute;inset:-24px;border-radius:50%;
+  background:radial-gradient(circle,rgba(77,163,255,.4),rgba(77,163,255,0) 70%);
+  animation:coreBreath 4s ease-in-out infinite;
+}
+.foot-core svg{position:relative;width:100%;height:100%}
+.foot-core .spin{transform-origin:45px 45px;animation:coreSpin 14s linear infinite}
+.foot-core .l1{animation:coreLayer 4s ease-in-out infinite}
+.foot-core .l2{animation:coreLayer 4s ease-in-out infinite 1.3s}
+.foot-core .l3{animation:coreLayer 4s ease-in-out infinite 2.6s}
+@keyframes coreBreath{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:.8;transform:scale(1.15)}}
+@keyframes coreSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes coreLayer{0%,100%{opacity:.3}50%{opacity:1}}
 </style>
 </head>
 <body>
@@ -460,42 +518,123 @@ footer b{color:var(--blue);font-weight:400}
   <section class="lab" id="lab">
     <div class="lab-inner">
       <div class="lab-preview reveal">
+        <div class="speech-bubble" id="speechBubble"></div>
         <svg viewBox="0 0 300 300" aria-label="Your custom buddy preview">
           <ellipse cx="150" cy="252" rx="90" ry="10" fill="#04070d"/>
           <rect x="70" y="230" width="160" height="22" rx="8" fill="#16233a" stroke="#1c2c44"/>
           <text id="buddyName" x="150" y="245.5" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="13" letter-spacing="2" fill="#7cc0ff"></text>
-          <g id="buddyBodyGroup">
+          <g id="buddyRig">
             <path id="buddyBody" fill="#4da3ff" d=""/>
+            <g id="buddyRing"></g>
+            <g id="buddyFace">
+              <g id="buddyEyes"></g>
+              <g id="buddyBrows"></g>
+              <g id="buddyMouth"></g>
+            </g>
+            <g id="buddyHat"></g>
           </g>
-          <g id="buddyEyes"></g>
         </svg>
-        <div class="lab-readout">MODEL <b id="roShape">BLOB</b> · EYES <b id="roEyes">DOT</b> · FILAMENT <b id="roColor">CALCO BLUE</b></div>
-        <div class="lab-readout">EST. SIZE <b id="roSize">5CM</b> · PRINT TIME <b id="roTime">~2HR</b></div>
+        <div class="lab-readout">MODEL <b id="roShape">BLOB</b> · HAT <b id="roHat">NONE</b> · FILAMENT <b id="roColor">CALCO BLUE</b></div>
+        <div class="lab-readout">FORMAT <b id="roFormat">DESK BUDDY</b> · SIZE <b id="roSize">5CM</b> · PRINT <b id="roTime">~2HR</b></div>
+        <div class="buddy-card">
+          <div class="bc-head"><span class="bc-title">BUDDY CARD</span><span class="bc-rarity" id="pcRarity">COMMON</span></div>
+          <div class="bc-row"><span class="bc-label">LIKES</span> — <b id="pcLikes"></b></div>
+          <div class="bc-row"><span class="bc-label">FEARS</span> — <b id="pcFears"></b></div>
+          <div class="bc-row"><span class="bc-label">JOB</span> — <b id="pcJob"></b></div>
+          <div class="bc-row"><span class="bc-label">SPECIAL MOVE</span> — <b id="pcMove"></b></div>
+          <div class="bc-foot">
+            <span class="bc-power">POWER <b id="pcPower">0</b>/100</span>
+            <button class="bc-shuffle" id="pcShuffle" type="button">Shuffle personality</button>
+          </div>
+        </div>
       </div>
       <div class="lab-controls reveal">
         <div class="kicker">02 · The Custom Lab</div>
         <h2 class="sec-title" style="font-size:clamp(28px,4.5vw,46px)">Design your<br>own buddy.</h2>
+        <button class="btn-surprise" id="surpriseBtn" type="button">Surprise me</button>
         <h3>Body</h3>
-        <div class="chip-row" id="shapeRow">
-          <button class="chip on" data-shape="blob">Blob</button>
-          <button class="chip" data-shape="bot">Bot</button>
-          <button class="chip" data-shape="bean">Bean</button>
+        <div class="chip-row" data-key="shape">
+          <button class="chip on" data-v="blob">Blob</button>
+          <button class="chip" data-v="bot">Bot</button>
+          <button class="chip" data-v="bean">Bean</button>
+          <button class="chip" data-v="ghost">Ghost</button>
+          <button class="chip" data-v="shroom">Mushroom</button>
+          <button class="chip" data-v="cat">Cat</button>
+          <button class="chip" data-v="dino">Dino</button>
+          <button class="chip" data-v="frog">Frog</button>
+          <button class="chip" data-v="star">Star</button>
+          <button class="chip" data-v="heart">Heart</button>
         </div>
         <h3>Eyes</h3>
-        <div class="chip-row" id="eyeRow">
-          <button class="chip on" data-eyes="dot">Dot</button>
-          <button class="chip" data-eyes="happy">Happy</button>
-          <button class="chip" data-eyes="wink">Wink</button>
+        <div class="chip-row" data-key="eyes">
+          <button class="chip on" data-v="dot">Dot</button>
+          <button class="chip" data-v="happy">Happy</button>
+          <button class="chip" data-v="wink">Wink</button>
+          <button class="chip" data-v="star">Star</button>
+          <button class="chip" data-v="sleepy">Sleepy</button>
+          <button class="chip" data-v="big">Big</button>
+          <button class="chip" data-v="hearts">Hearts</button>
+          <button class="chip" data-v="dizzy">Dizzy</button>
+          <button class="chip" data-v="shades">Shades</button>
+          <button class="chip" data-v="cyclops">Cyclops</button>
+        </div>
+        <h3>Mouth</h3>
+        <div class="chip-row" data-key="mouth">
+          <button class="chip on" data-v="smile">Smile</button>
+          <button class="chip" data-v="grin">Grin</button>
+          <button class="chip" data-v="meh">Meh</button>
+          <button class="chip" data-v="tongue">Tongue</button>
+          <button class="chip" data-v="fangs">Fangs</button>
+          <button class="chip" data-v="gasp">Gasp</button>
+          <button class="chip" data-v="cat">Cat</button>
+          <button class="chip" data-v="frown">Frown</button>
+          <button class="chip" data-v="teeth">Teeth</button>
+          <button class="chip" data-v="wavy">Wavy</button>
+        </div>
+        <h3>Eyebrows</h3>
+        <div class="chip-row" data-key="brow">
+          <button class="chip on" data-v="none">None</button>
+          <button class="chip" data-v="angry">Angry</button>
+          <button class="chip" data-v="shocked">Shocked</button>
+          <button class="chip" data-v="smug">Smug</button>
+          <button class="chip" data-v="worried">Worried</button>
+          <button class="chip" data-v="uni">Unibrow</button>
+          <button class="chip" data-v="flat">Flat</button>
+          <button class="chip" data-v="villain">Villain</button>
+          <button class="chip" data-v="bushy">Bushy</button>
+          <button class="chip" data-v="wiggly">Wiggly</button>
+        </div>
+        <h3>Hat</h3>
+        <div class="chip-row" data-key="hat">
+          <button class="chip on" data-v="none">None</button>
+          <button class="chip" data-v="party">Party</button>
+          <button class="chip" data-v="crown">Crown</button>
+          <button class="chip" data-v="cap">Cap</button>
+          <button class="chip" data-v="antenna">Antenna</button>
+          <button class="chip" data-v="horns">Horns</button>
+          <button class="chip" data-v="wizard">Wizard</button>
+          <button class="chip" data-v="halo">Halo</button>
+          <button class="chip" data-v="propeller">Propeller</button>
+          <button class="chip" data-v="cowboy">Cowboy</button>
         </div>
         <h3>Filament Color</h3>
         <div class="swatch-row" id="swatchRow"></div>
+        <h3>Accent Color · Hats</h3>
+        <div class="swatch-row" id="accentRow"></div>
+        <h3>Format</h3>
+        <div class="chip-row" data-key="format">
+          <button class="chip on" data-v="desk">Desk buddy</button>
+          <button class="chip" data-v="keychain">Keychain</button>
+        </div>
         <h3>Name your buddy</h3>
         <input class="name-input" id="nameInput" type="text" maxlength="12" placeholder="TYPE A NAME" autocomplete="off">
         <div class="lab-cta">
-          <button class="btn btn-fill btn-sm" id="downloadBuddy" type="button">Download print file</button>
+          <button class="btn btn-fill btn-sm" id="certBtn" type="button">Adoption certificate</button>
+          <button class="btn btn-ghost btn-sm" id="downloadBuddy" type="button">Print file</button>
+          <a class="btn btn-ghost btn-sm" id="registerBuddy" href="#">Register buddy</a>
           <a class="btn btn-ghost btn-sm" id="orderBuddy" href="#">Order this buddy</a>
         </div>
-        <p class="lab-note">Every buddy you design here is a real, printable shape. Download the print file to make it yourself, or hit order and we'll print it for you. Want something wilder? Describe literally anything — pets, mascots, inside jokes, tiny trophies. All fair game.</p>
+        <p class="lab-note">Click your buddy — it talks. Every buddy you design here is a real, printable shape. Grab the adoption certificate, download the print file, or hit order and we'll print it for you. Register your buddy by email and we'll send back an official portrait made just for them. Want something wilder? Describe literally anything — pets, mascots, inside jokes, tiny trophies. All fair game.</p>
       </div>
     </div>
   </section>
@@ -562,6 +701,15 @@ footer b{color:var(--blue);font-weight:400}
 </main>
 
 <footer>
+  <div class="foot-core" aria-hidden="true">
+    <svg viewBox="0 0 90 90" fill="none">
+      <g class="spin" stroke="var(--blue)" stroke-width="1.6" stroke-linejoin="round">
+        <path class="l3" d="M45 12 L74 28 L45 44 L16 28 Z"/>
+        <path class="l2" d="M45 30 L74 46 L45 62 L16 46 Z"/>
+        <path class="l1" d="M45 48 L74 64 L45 80 L16 64 Z"/>
+      </g>
+    </svg>
+  </div>
   <b>CALCO PRINTS</b> — designed, printed &amp; quality-checked by Calvin<br>
   CEO, age 10 · Built with one printer and a lot of filament
 </footer>
@@ -594,97 +742,352 @@ document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
 const FILAMENTS=[
   ['Lava Red','#ff4b3e'],['Hyper Orange','#ff8a2a'],['Banana','#ffd23f'],
   ['Slime Green','#5ee65a'],['CalCo Blue','#4da3ff'],['Galaxy Purple','#9b6bff'],
+  ['Bubblegum','#ff7dbe'],['Minty Fresh','#5ce8c8'],
   ['Cloud White','#e9eef5'],['Ghost Glow','#c9ffce','glow']
 ];
 const BODIES={
   blob:'M150 80 C 195 80 218 115 218 155 C 218 200 190 222 150 222 C 110 222 82 200 82 155 C 82 115 105 80 150 80 Z',
   bot:'M105 85 h90 a14 14 0 0 1 14 14 v110 a14 14 0 0 1 -14 14 h-90 a14 14 0 0 1 -14 -14 v-110 a14 14 0 0 1 14 -14 Z M150 85 v-20 M150 58 a8 8 0 1 1 .01 0',
-  bean:'M150 68 C 190 68 205 105 202 150 C 199 198 185 224 150 224 C 115 224 101 198 98 150 C 95 105 110 68 150 68 Z'
+  bean:'M150 68 C 190 68 205 105 202 150 C 199 198 185 224 150 224 C 115 224 101 198 98 150 C 95 105 110 68 150 68 Z',
+  ghost:'M150 70 C193 70 212 106 212 148 L212 218 Q200 206 187 218 Q175 230 162 218 Q150 206 137 218 Q125 230 112 218 Q100 206 88 218 L88 148 C88 106 107 70 150 70 Z',
+  shroom:'M150 68 C202 68 228 98 228 126 Q228 140 210 140 L192 140 L192 198 Q192 224 150 224 Q108 224 108 198 L108 140 L90 140 Q72 140 72 126 C72 98 98 68 150 68 Z',
+  cat:'M106 98 L94 56 L133 78 C138 74 144 72 150 72 C156 72 162 74 167 78 L206 56 L194 98 C210 114 218 134 218 156 C218 200 190 222 150 222 C110 222 82 200 82 156 C82 134 90 114 106 98 Z',
+  dino:'M150 84 C 195 84 218 115 218 155 C 218 200 190 222 150 222 C 110 222 82 200 82 155 C 82 115 105 84 150 84 Z M104 108 L116 66 L136 92 Z M140 88 L154 52 L168 88 Z M170 92 L188 62 L198 106 Z',
+  frog:'M150 92 C 192 92 216 122 216 158 C 216 200 188 222 150 222 C 112 222 84 200 84 158 C 84 122 108 92 150 92 Z M124 102 a15 15 0 1 1 .01 0 M176 102 a15 15 0 1 1 .01 0',
+  star:'M150 62 L179 110 L234 123 L198 166 L202 221 L150 200 L98 221 L102 166 L66 123 L121 110 Z',
+  heart:'M150 224 C 104 192 78 162 78 124 C 78 96 98 78 120 78 C 134 78 145 88 150 100 C 155 88 166 78 180 78 C 202 78 222 96 222 124 C 222 162 196 192 150 224 Z'
 };
+const HAT_ANCHOR={blob:84,bot:88,bean:72,ghost:74,shroom:70,cat:76,dino:48,frog:68,star:58,heart:92};
 const EYES={
-  dot:g=>{g.innerHTML='<circle cx="128" cy="145" r="9" fill="#0a0f18"/><circle cx="172" cy="145" r="9" fill="#0a0f18"/><circle cx="131" cy="142" r="3" fill="#fff"/><circle cx="175" cy="142" r="3" fill="#fff"/>'},
-  happy:g=>{g.innerHTML='<path d="M118 148 q10 -14 20 0" stroke="#0a0f18" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M162 148 q10 -14 20 0" stroke="#0a0f18" stroke-width="6" fill="none" stroke-linecap="round"/>'},
-  wink:g=>{g.innerHTML='<circle cx="128" cy="145" r="9" fill="#0a0f18"/><circle cx="131" cy="142" r="3" fill="#fff"/><path d="M162 145 h20" stroke="#0a0f18" stroke-width="6" stroke-linecap="round"/>'}
+  dot:'<circle cx="128" cy="145" r="9" fill="#0a0f18"/><circle cx="172" cy="145" r="9" fill="#0a0f18"/><circle cx="131" cy="142" r="3" fill="#fff"/><circle cx="175" cy="142" r="3" fill="#fff"/>',
+  happy:'<path d="M118 148 q10 -14 20 0" stroke="#0a0f18" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M162 148 q10 -14 20 0" stroke="#0a0f18" stroke-width="6" fill="none" stroke-linecap="round"/>',
+  wink:'<circle cx="128" cy="145" r="9" fill="#0a0f18"/><circle cx="131" cy="142" r="3" fill="#fff"/><path d="M162 145 h20" stroke="#0a0f18" stroke-width="6" stroke-linecap="round"/>',
+  star:'<path d="M128 132 l3.5 9 9 3.5 -9 3.5 -3.5 9 -3.5 -9 -9 -3.5 9 -3.5 Z" fill="#0a0f18"/><path d="M172 132 l3.5 9 9 3.5 -9 3.5 -3.5 9 -3.5 -9 -9 -3.5 9 -3.5 Z" fill="#0a0f18"/>',
+  sleepy:'<path d="M118 143 q10 10 20 0" stroke="#0a0f18" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M162 143 q10 10 20 0" stroke="#0a0f18" stroke-width="6" fill="none" stroke-linecap="round"/>',
+  big:'<circle cx="128" cy="145" r="13" fill="#0a0f18"/><circle cx="172" cy="145" r="13" fill="#0a0f18"/><circle cx="132" cy="140" r="4.5" fill="#fff"/><circle cx="176" cy="140" r="4.5" fill="#fff"/>',
+  hearts:'<path d="M128 153 C121 147 117 142 117 137 C117 133 120 130 123 130 C125 130 127 131 128 134 C129 131 131 130 133 130 C136 130 139 133 139 137 C139 142 135 147 128 153 Z" fill="#ff5c8a"/><path d="M172 153 C165 147 161 142 161 137 C161 133 164 130 167 130 C169 130 171 131 172 134 C173 131 175 130 177 130 C180 130 183 133 183 137 C183 142 179 147 172 153 Z" fill="#ff5c8a"/>',
+  dizzy:'<path d="M119 136 l18 18 M137 136 l-18 18" stroke="#0a0f18" stroke-width="6" stroke-linecap="round"/><path d="M163 136 l18 18 M181 136 l-18 18" stroke="#0a0f18" stroke-width="6" stroke-linecap="round"/>',
+  shades:'<rect x="110" y="133" width="34" height="22" rx="7" fill="#0a0f18"/><rect x="156" y="133" width="34" height="22" rx="7" fill="#0a0f18"/><path d="M144 139 h12" stroke="#0a0f18" stroke-width="5"/><path d="M110 139 l-8 -3 M190 139 l8 -3" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/>',
+  cyclops:'<circle cx="150" cy="145" r="16" fill="#0a0f18"/><circle cx="155" cy="139" r="5" fill="#fff"/>'
 };
-const PRINT_SPECS={
-  blob:{size:'5CM',time:'~2HR'},
-  bot:{size:'6CM',time:'~2.5HR'},
-  bean:{size:'6CM',time:'~2HR'}
+const MOUTHS={
+  smile:'<path d="M136 172 Q150 186 164 172" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  grin:'<path d="M131 170 Q150 194 169 170 Z" fill="#0a0f18"/><rect x="139" y="170" width="22" height="6" rx="2" fill="#fff"/>',
+  meh:'<path d="M138 176 h24" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/>',
+  tongue:'<path d="M136 170 Q150 184 164 170" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M147 176 Q149 190 159 187 Q165 185 160 174 Z" fill="#ff7d9c"/>',
+  fangs:'<path d="M133 171 Q150 181 167 171" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M139 173 l4 11 5 -9 Z" fill="#fff"/><path d="M161 173 l-4 11 -5 -9 Z" fill="#fff"/>',
+  gasp:'<ellipse cx="150" cy="177" rx="8" ry="10" fill="#0a0f18"/>',
+  cat:'<path d="M136 172 Q143 181 150 172 Q157 181 164 172" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  frown:'<path d="M136 182 Q150 168 164 182" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  teeth:'<path d="M133 171 Q150 182 167 171" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="142" y="173" width="8" height="11" rx="2" fill="#fff"/><rect x="151" y="173" width="8" height="11" rx="2" fill="#fff"/>',
+  wavy:'<path d="M134 177 q4 -6 8 0 q4 6 8 0 q4 -6 8 0 q4 6 8 0" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/>'
 };
-const body=document.getElementById('buddyBody'),eyes=document.getElementById('buddyEyes');
-const roShape=document.getElementById('roShape'),roEyes=document.getElementById('roEyes'),roColor=document.getElementById('roColor');
-const roSize=document.getElementById('roSize'),roTime=document.getElementById('roTime');
-let state={shape:'blob',eyes:'dot',color:'#4da3ff',colorName:'CalCo Blue',name:''};
+const BROWS={
+  none:'',
+  angry:'<path d="M115 126 L139 134" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/><path d="M185 126 L161 134" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/>',
+  shocked:'<path d="M117 123 q11 -9 22 0" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M161 123 q11 -9 22 0" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  smug:'<path d="M117 131 h22" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/><path d="M160 119 q11 -8 22 1" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/>',
+  worried:'<path d="M117 131 L139 123" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/><path d="M161 123 L183 131" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/>',
+  uni:'<path d="M113 128 Q150 118 187 128" stroke="#0a0f18" stroke-width="7" fill="none" stroke-linecap="round"/>',
+  flat:'<path d="M116 125 h23" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/><path d="M161 125 h23" stroke="#0a0f18" stroke-width="5" stroke-linecap="round"/>',
+  villain:'<path d="M112 117 L141 133" stroke="#0a0f18" stroke-width="6" stroke-linecap="round"/><path d="M188 117 L159 133" stroke="#0a0f18" stroke-width="6" stroke-linecap="round"/>',
+  bushy:'<rect x="112" y="119" width="27" height="10" rx="5" fill="#0a0f18" transform="rotate(-7 125 124)"/><rect x="161" y="119" width="27" height="10" rx="5" fill="#0a0f18" transform="rotate(7 174 124)"/>',
+  wiggly:'<path d="M115 126 q6 -7 12 0 q6 7 12 0" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M161 126 q6 -7 12 0 q6 7 12 0" stroke="#0a0f18" stroke-width="5" fill="none" stroke-linecap="round"/>'
+};
+const HATS={
+  none:()=>'',
+  party:a=>`<path d="M-20 4 L0 -44 L20 4 Z" fill="${a}" stroke="rgba(0,0,0,.3)" stroke-width="2"/><circle cx="0" cy="-44" r="6" fill="#fff"/>`,
+  crown:a=>`<path d="M-24 4 L-24 -18 L-12 -7 L0 -24 L12 -7 L24 -18 L24 4 Z" fill="${a}" stroke="rgba(0,0,0,.3)" stroke-width="2"/>`,
+  cap:a=>`<path d="M-24 2 A24 20 0 0 1 24 2 Z" fill="${a}"/><rect x="10" y="-1" width="34" height="8" rx="4" fill="${a}"/>`,
+  antenna:a=>`<path d="M0 2 V-24" stroke="${a}" stroke-width="5" stroke-linecap="round"/><circle cx="0" cy="-31" r="8" fill="${a}"/>`,
+  horns:a=>`<path d="M-24 6 Q-40 -8 -32 -28 Q-24 -8 -14 0 Z" fill="${a}"/><path d="M24 6 Q40 -8 32 -28 Q24 -8 14 0 Z" fill="${a}"/>`,
+  wizard:a=>`<ellipse cx="0" cy="2" rx="30" ry="7" fill="${a}"/><path d="M-15 0 L4 -50 L17 0 Z" fill="${a}"/><circle cx="4" cy="-50" r="5" fill="#ffd23f"/>`,
+  halo:a=>`<ellipse cx="0" cy="-20" rx="20" ry="6" fill="none" stroke="${a}" stroke-width="5"/>`,
+  propeller:a=>`<path d="M-22 2 A22 18 0 0 1 22 2 Z" fill="${a}"/><path d="M0 -16 V-24" stroke="${a}" stroke-width="4"/><ellipse cx="-13" cy="-25" rx="12" ry="4.5" fill="${a}"/><ellipse cx="13" cy="-25" rx="12" ry="4.5" fill="${a}"/><circle cx="0" cy="-25" r="3.5" fill="#fff"/>`,
+  cowboy:a=>`<ellipse cx="0" cy="-2" rx="33" ry="8" fill="${a}"/><path d="M-16 -4 Q-16 -26 0 -26 Q16 -26 16 -4 Z" fill="${a}" stroke="rgba(0,0,0,.25)" stroke-width="2"/>`
+};
+const PRINT_SPECS={blob:[5,2],bot:[6,2.5],bean:[6,2],ghost:[6,2.5],shroom:[6,2.5],cat:[6,3],dino:[6,3],frog:[6,2.5],star:[5,2],heart:[5,2]};
+const POOL={
+  likes:['loud music','cold pizza','shiny rocks','staring contests','maximum volume','doing absolutely nothing','sock lint','glitter (too much of it)','the smell of new erasers','dramatic entrances'],
+  fears:['homework','vacuum cleaners','being left in a backpack','pop quizzes','wet socks','the recycling bin','haircuts','Mondays','birds (long story)','running out of snacks'],
+  jobs:['homework judge','desk security','snack inspector','chaos manager','pencil bodyguard','vibe supervisor','lost-sock detective','chief of staring out the window','head of quality control (naps)'],
+  moves:['the silent stare','spontaneous wiggle','extreme loafing','sonic squeak','the guilt trip','power nap (level 99)','aggressive cuteness','disappearing act']
+};
+const FLAVOR={
+  ghost:{fears:['flashlights'],moves:['phasing through backpacks (allegedly)']},
+  cat:{likes:['knocking pencils off desks'],jobs:['professional ignorer']},
+  shroom:{likes:['damp corners'],jobs:['being a fun-gi']},
+  bot:{likes:['charging cables'],moves:['robot voice (surprisingly good)']},
+  bean:{likes:['being mistaken for a potato']},
+  dino:{likes:['stomping around (tiny)'],moves:["prehistoric roar (it's a squeak)"]},
+  frog:{likes:['rainy days'],jobs:['fly-swatting consultant']},
+  star:{jobs:['desk nightlight (unpaid)'],moves:['supernova sparkle']},
+  heart:{likes:['hugs (mandatory)'],moves:['aggressive affection']},
+  star:{moves:['dramatic sparkle entrance']},
+  shades:{jobs:['director of cool']},
+  hearts:{likes:['you. specifically you.']},
+  dizzy:{fears:['spinny chairs']},
+  cyclops:{moves:['the unblinking stare']},
+  teeth:{likes:['corn on the cob']},
+  frown:{fears:['fun']},
+  halo:{jobs:['certified angel (self-certified)']},
+  propeller:{moves:['lift-off (almost 2 inches)']},
+  cowboy:{moves:['tiny lasso']},
+  Bubblegum:{likes:['smelling vaguely of candy']},
+  sleepy:{jobs:['professional napper'],fears:['alarm clocks']},
+  fangs:{moves:['tiny bite (completely harmless)']},
+  tongue:{likes:['tasting the air like a lizard']},
+  crown:{jobs:['supreme ruler of the desk']},
+  wizard:{moves:['forbidden homework magic']},
+  party:{likes:['cake. all of it.']},
+  horns:{fears:['absolutely nothing (it claims)']},
+  antenna:{moves:['picking up alien radio']},
+  cap:{likes:['sports (watching, not doing)']},
+  'Ghost Glow':{moves:['glowing at the worst possible moment']}
+};
+const NAMES=['ZAPPY','GLORP','WAFFLES','SIR NIBBLES','TURBO','PICKLE','BLIP','MOCHI','GOOBER','SPROCKET','NACHO','CAPTAIN VIBE'];
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function makeRng(seed){return()=>{seed=Math.imul(seed^seed>>>15,seed|1);seed^=seed+Math.imul(seed^seed>>>7,seed|61);return((seed^seed>>>14)>>>0)/4294967296}}
+function personality(){
+  const r=makeRng(hashStr([state.shape,state.eyes,state.mouth,state.brow,state.hat,state.colorName,state.seed].join('|'))||1);
+  const keys=[state.shape,state.eyes,state.mouth,state.hat,state.colorName];
+  const pick=k=>{
+    const extra=keys.flatMap(x=>(FLAVOR[x]&&FLAVOR[x][k])||[]);
+    if(extra.length&&r()<.6)return extra[Math.floor(r()*extra.length)];
+    return POOL[k][Math.floor(r()*POOL[k].length)];
+  };
+  const special=(state.colorName==='Ghost Glow'?1:0)+(state.hat==='wizard'||state.hat==='crown'?1:0)+(state.eyes==='star'?1:0)+(state.mouth==='fangs'?1:0);
+  return{likes:pick('likes'),fears:pick('fears'),job:pick('jobs'),move:pick('moves'),
+    rarity:['COMMON','UNCOMMON','RARE','LEGENDARY'][Math.min(special,3)],power:40+Math.floor(r()*61)};
+}
+const body=document.getElementById('buddyBody'),rig=document.getElementById('buddyRig');
+const eyesG=document.getElementById('buddyEyes'),browsG=document.getElementById('buddyBrows');
+const mouthG=document.getElementById('buddyMouth'),hatG=document.getElementById('buddyHat');
+const ringG=document.getElementById('buddyRing'),faceG=document.getElementById('buddyFace');
+const roShape=document.getElementById('roShape'),roHat=document.getElementById('roHat'),roColor=document.getElementById('roColor');
+const roFormat=document.getElementById('roFormat'),roSize=document.getElementById('roSize'),roTime=document.getElementById('roTime');
+let state={shape:'blob',eyes:'dot',mouth:'smile',brow:'none',hat:'none',color:'#4da3ff',colorName:'CalCo Blue',accent:'#ff4b3e',accentName:'Lava Red',format:'desk',name:'',seed:0};
+let booted=false,curSize='',curTime='';
+function hatMarkup(){return state.hat==='none'?'':`<g transform="translate(150 ${HAT_ANCHOR[state.shape]})">${HATS[state.hat](state.accent)}</g>`}
+function ringMarkup(stroke){return state.format==='keychain'?`<circle cx="150" cy="${HAT_ANCHOR[state.shape]-10}" r="10" fill="none" stroke="${stroke}" stroke-width="5"/>`:''}
+function specText(p){
+  return['BUDDY SPEC','',
+    `MODEL: ${state.shape.toUpperCase()}`,
+    `EYES: ${state.eyes.toUpperCase()} · MOUTH: ${state.mouth.toUpperCase()} · BROWS: ${state.brow.toUpperCase()}`,
+    `HAT: ${state.hat.toUpperCase()}${state.hat!=='none'?` (${state.accentName.toUpperCase()})`:''}`,
+    `FILAMENT: ${state.colorName.toUpperCase()}`,
+    `FORMAT: ${state.format==='keychain'?'KEYCHAIN':'DESK BUDDY'} · SIZE: ${curSize} · PRINT: ${curTime}`,
+    `NAME: ${state.name.toUpperCase()||'(none)'}`,'',
+    `PERSONALITY — ${p.rarity} · POWER ${p.power}/100`,
+    `LIKES: ${p.likes}`,`FEARS: ${p.fears}`,`JOB: ${p.job}`,`SPECIAL MOVE: ${p.move}`].join('\n');
+}
 function renderBuddy(){
   body.setAttribute('d',BODIES[state.shape]);
   body.setAttribute('fill',state.color);
   body.setAttribute('stroke','rgba(0,0,0,.35)');
   body.setAttribute('stroke-width','3');
   body.style.filter=state.colorName==='Ghost Glow'?'drop-shadow(0 0 14px #b6ffbe)':'drop-shadow(0 10px 18px rgba(0,0,0,.4))';
-  EYES[state.eyes](eyes);
+  eyesG.innerHTML=EYES[state.eyes];
+  browsG.innerHTML=BROWS[state.brow];
+  mouthG.innerHTML=MOUTHS[state.mouth];
+  hatG.innerHTML=hatMarkup();
+  ringG.innerHTML=ringMarkup('#9fb2c8');
   roShape.textContent=state.shape.toUpperCase();
-  roEyes.textContent=state.eyes.toUpperCase();
+  roHat.textContent=state.hat.toUpperCase();
   roColor.textContent=state.colorName.toUpperCase();
-  const spec=PRINT_SPECS[state.shape];
-  roSize.textContent=spec.size;
-  roTime.textContent=spec.time;
-  const specText=`Buddy order request:%0A%0AMODEL: ${state.shape.toUpperCase()}%0AEYES: ${state.eyes.toUpperCase()}%0AFILAMENT: ${state.colorName.toUpperCase()}%0ANAME: ${encodeURIComponent(state.name.toUpperCase()||'(none)')}%0ASIZE: ${spec.size} · PRINT ${spec.time}`;
+  roFormat.textContent=state.format==='keychain'?'KEYCHAIN':'DESK BUDDY';
+  const[size,baseT]=PRINT_SPECS[state.shape];
+  let t=baseT+(state.hat!=='none'?.5:0),sz=size;
+  if(state.format==='keychain'){t=Math.max(1,Math.round(t*.6*2)/2);sz=4}
+  curSize=`${sz}CM`;curTime=`~${t}HR`;
+  roSize.textContent=curSize;roTime.textContent=curTime;
+  const p=personality();
+  document.getElementById('pcLikes').textContent=p.likes;
+  document.getElementById('pcFears').textContent=p.fears;
+  document.getElementById('pcJob').textContent=p.job;
+  document.getElementById('pcMove').textContent=p.move;
+  document.getElementById('pcPower').textContent=p.power;
+  const rar=document.getElementById('pcRarity');
+  rar.textContent=p.rarity;
+  rar.style.color={COMMON:'var(--ink-dim)',UNCOMMON:'var(--ink)',RARE:'var(--blue)',LEGENDARY:'var(--orange)'}[p.rarity];
+  const spec=encodeURIComponent(specText(p));
   document.getElementById('orderBuddy').href=
-    `mailto:hello@calcoprints.com?subject=${encodeURIComponent('CalCo Buddy Order'+(state.name?' — '+state.name.toUpperCase():''))}&body=${specText}`;
+    `mailto:hello@calcoprints.com?subject=${encodeURIComponent('CalCo Buddy Order'+(state.name?' — '+state.name.toUpperCase():''))}&body=${spec}${encodeURIComponent('\n\nPlease print this buddy!')}`;
+  document.getElementById('registerBuddy').href=
+    `mailto:hello@calcoprints.com?subject=${encodeURIComponent('Buddy Registration'+(state.name?' — '+state.name.toUpperCase():''))}&body=${spec}${encodeURIComponent('\n\nPlease register this buddy and send back an official portrait!')}`;
+  if(booted){rig.classList.remove('boing');void rig.getBoundingClientRect();rig.classList.add('boing')}
 }
 function buddySVG(){
-  const eyeG=document.createElementNS('http://www.w3.org/2000/svg','g');EYES[state.eyes](eyeG);
-  const spec=PRINT_SPECS[state.shape];
+  const p=personality();
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!-- CalCo Prints buddy
-     MODEL: ${state.shape.toUpperCase()} | EYES: ${state.eyes.toUpperCase()} | FILAMENT: ${state.colorName.toUpperCase()}
-     NAME: ${state.name.toUpperCase()||'(none)'} | SIZE: ${spec.size} | PRINT: ${spec.time}
+${specText(p).replace(/--/g,'—')}
      To make it real: import this SVG into Tinkercad or Fusion 360 and extrude.
-     Body = main solid. Eyes + name = engrave or second color. -->
+     Body = main solid. Face + name = engrave or second color. Hat = accent color. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
   <rect x="70" y="230" width="160" height="22" rx="8" fill="#cccccc" stroke="#000000" stroke-width="2"/>
+  ${ringMarkup('#000000')}
   <path d="${BODIES[state.shape]}" fill="${state.color}" stroke="#000000" stroke-width="3"/>
-  <g>${eyeG.innerHTML.replaceAll('#0a0f18','#000000')}</g>
+  <g>${(EYES[state.eyes]+BROWS[state.brow]+MOUTHS[state.mouth]).replaceAll('#0a0f18','#000000')}</g>
+  ${hatMarkup()}
   <text x="150" y="246" text-anchor="middle" font-family="monospace" font-size="13" letter-spacing="2" fill="#000000">${state.name.toUpperCase().replace(/[<>&]/g,'')}</text>
 </svg>`;
 }
-document.getElementById('downloadBuddy').addEventListener('click',()=>{
-  const blob=new Blob([buddySVG()],{type:'image/svg+xml'});
+function certSVG(){
+  const p=personality();
+  const nm=(state.name||'UNNAMED').toUpperCase().replace(/[<>&"]/g,'');
+  const d=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const id=hashStr(JSON.stringify(state)).toString(36).toUpperCase().padStart(6,'0').slice(-6);
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 580" width="800" height="580" font-family="Georgia,serif">
+  <rect width="800" height="580" fill="#f8f3e6"/>
+  <rect x="18" y="18" width="764" height="544" fill="none" stroke="#16233a" stroke-width="5"/>
+  <rect x="30" y="30" width="740" height="520" fill="none" stroke="#16233a" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="400" y="76" text-anchor="middle" font-size="14" letter-spacing="6" fill="#8a7a55" font-family="monospace">CALCO PRINTS · OFFICIAL REGISTRY</text>
+  <text x="400" y="118" text-anchor="middle" font-size="30" font-weight="bold" letter-spacing="2" fill="#16233a">CERTIFICATE OF BUDDY ADOPTION</text>
+  <g transform="translate(46 150) scale(.86)">
+    <ellipse cx="150" cy="252" rx="90" ry="10" fill="#00000018"/>
+    <rect x="70" y="230" width="160" height="22" rx="8" fill="#e2d9c2" stroke="#16233a"/>
+    <text x="150" y="246" text-anchor="middle" font-family="monospace" font-size="13" letter-spacing="2" fill="#16233a">${nm}</text>
+    ${ringMarkup('#4a5568')}
+    <path d="${BODIES[state.shape]}" fill="${state.color}" stroke="#16233a" stroke-width="3"/>
+    <g>${EYES[state.eyes]}${BROWS[state.brow]}${MOUTHS[state.mouth]}</g>
+    ${hatMarkup()}
+  </g>
+  <text x="330" y="182" font-size="14" fill="#6b5f45" font-style="italic">This certifies that the buddy known as</text>
+  <text x="330" y="226" font-size="38" font-weight="bold" fill="#16233a">${nm}</text>
+  <line x1="330" y1="238" x2="740" y2="238" stroke="#8a7a55"/>
+  <text x="330" y="264" font-size="12" font-family="monospace" fill="#555" letter-spacing="1">${state.shape.toUpperCase()} · ${state.colorName.toUpperCase()} · ${state.format==='keychain'?'KEYCHAIN':'DESK BUDDY'} · ${p.rarity}</text>
+  <text x="330" y="298" font-size="14" fill="#333">LIKES: ${p.likes}</text>
+  <text x="330" y="322" font-size="14" fill="#333">FEARS: ${p.fears}</text>
+  <text x="330" y="346" font-size="14" fill="#333">JOB: ${p.job}</text>
+  <text x="330" y="370" font-size="14" fill="#333">SPECIAL MOVE: ${p.move}</text>
+  <text x="330" y="400" font-size="14" font-weight="bold" fill="#16233a">POWER LEVEL: ${p.power}/100</text>
+  <text x="330" y="430" font-size="13" fill="#6b5f45">and is now a fully registered member of the CalCo Prints family,</text>
+  <text x="330" y="449" font-size="13" fill="#6b5f45">entitled to all desk privileges, snack proximity,</text>
+  <text x="330" y="468" font-size="13" fill="#6b5f45">and unconditional admiration.</text>
+  <line x1="80" y1="500" x2="300" y2="500" stroke="#16233a"/>
+  <text x="190" y="518" text-anchor="middle" font-size="12" font-family="monospace" fill="#555">CALVIN · CEO, AGE 10</text>
+  <line x1="500" y1="500" x2="720" y2="500" stroke="#16233a"/>
+  <text x="610" y="518" text-anchor="middle" font-size="12" font-family="monospace" fill="#555">${d}</text>
+  <text x="400" y="543" text-anchor="middle" font-size="11" font-family="monospace" fill="#8a7a55">CERT NO. ${id} — EMAIL HELLO@CALCOPRINTS.COM TO REGISTER &amp; RECEIVE AN OFFICIAL BUDDY PORTRAIT</text>
+</svg>`;
+}
+function download(text,filename){
+  const blob=new Blob([text],{type:'image/svg+xml'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=`calco-buddy-${(state.name||state.shape).toLowerCase().replace(/[^a-z0-9]+/g,'-')}.svg`;
+  a.download=filename;
   a.click();
   URL.revokeObjectURL(a.href);
-});
-document.getElementById('shapeRow').addEventListener('click',e=>{
-  const b=e.target.closest('[data-shape]');if(!b)return;
-  document.querySelectorAll('#shapeRow .chip').forEach(c=>c.classList.toggle('on',c===b));
-  state.shape=b.dataset.shape;renderBuddy();
-});
-document.getElementById('eyeRow').addEventListener('click',e=>{
-  const b=e.target.closest('[data-eyes]');if(!b)return;
-  document.querySelectorAll('#eyeRow .chip').forEach(c=>c.classList.toggle('on',c===b));
-  state.eyes=b.dataset.eyes;renderBuddy();
-});
-const swRow=document.getElementById('swatchRow');
-FILAMENTS.forEach(([name,hex,glow],i)=>{
-  const s=document.createElement('button');
-  s.className='swatch'+(hex==='#4da3ff'?' on':'');
-  s.style.background=hex;s.style.color=hex;
-  s.title=name;s.setAttribute('aria-label',name);
-  if(glow)s.dataset.glow='';
-  s.addEventListener('click',()=>{
-    swRow.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('on',x===s));
-    state.color=hex;state.colorName=name;renderBuddy();
+}
+document.getElementById('downloadBuddy').addEventListener('click',()=>
+  download(buddySVG(),`calco-buddy-${(state.name||state.shape).toLowerCase().replace(/[^a-z0-9]+/g,'-')}.svg`));
+document.getElementById('certBtn').addEventListener('click',()=>
+  download(certSVG(),`calco-adoption-${(state.name||state.shape).toLowerCase().replace(/[^a-z0-9]+/g,'-')}.svg`));
+document.querySelectorAll('.chip-row[data-key]').forEach(row=>{
+  row.addEventListener('click',e=>{
+    const b=e.target.closest('[data-v]');if(!b)return;
+    row.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c===b));
+    state[row.dataset.key]=b.dataset.v;renderBuddy();
   });
-  swRow.appendChild(s);
 });
+const swRow=document.getElementById('swatchRow'),accRow=document.getElementById('accentRow');
+function buildSwatches(rowEl,key,nameKey,initHex){
+  FILAMENTS.forEach(([name,hex,glow])=>{
+    const s=document.createElement('button');
+    s.className='swatch'+(hex===initHex?' on':'');
+    s.style.background=hex;s.style.color=hex;s.dataset.hex=hex;
+    s.title=name;s.setAttribute('aria-label',name);
+    if(glow)s.dataset.glow='';
+    s.addEventListener('click',()=>{
+      rowEl.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('on',x===s));
+      state[key]=hex;state[nameKey]=name;renderBuddy();
+    });
+    rowEl.appendChild(s);
+  });
+}
+buildSwatches(swRow,'color','colorName','#4da3ff');
+buildSwatches(accRow,'accent','accentName','#ff4b3e');
 document.getElementById('nameInput').addEventListener('input',e=>{
   state.name=e.target.value;
   document.getElementById('buddyName').textContent=state.name.toUpperCase();
   renderBuddy();
 });
+document.getElementById('pcShuffle').addEventListener('click',()=>{state.seed++;renderBuddy()});
+document.getElementById('surpriseBtn').addEventListener('click',()=>{
+  const rand=a=>a[Math.floor(Math.random()*a.length)];
+  state.shape=rand(Object.keys(BODIES));
+  state.eyes=rand(Object.keys(EYES));
+  state.mouth=rand(Object.keys(MOUTHS));
+  state.brow=rand(Object.keys(BROWS));
+  state.hat=rand(Object.keys(HATS));
+  const f=rand(FILAMENTS),a2=rand(FILAMENTS);
+  state.color=f[1];state.colorName=f[0];
+  state.accent=a2[1];state.accentName=a2[0];
+  state.name=rand(NAMES);
+  state.seed=Math.floor(Math.random()*9999);
+  document.getElementById('nameInput').value=state.name;
+  document.getElementById('buddyName').textContent=state.name;
+  document.querySelectorAll('.chip-row[data-key]').forEach(row=>{
+    row.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.v===state[row.dataset.key]));
+  });
+  swRow.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('on',x.dataset.hex===state.color));
+  accRow.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('on',x.dataset.hex===state.accent));
+  renderBuddy();
+});
+const labPrev=document.querySelector('.lab-preview');
+labPrev.addEventListener('mousemove',e=>{
+  const r=labPrev.getBoundingClientRect();
+  const dx=((e.clientX-r.left)/r.width-.5)*8,dy=((e.clientY-r.top)/r.height-.5)*6;
+  faceG.style.transform=`translate(${dx}px,${dy}px)`;
+});
+labPrev.addEventListener('mouseleave',()=>faceG.style.transform='');
+(function blink(){
+  setTimeout(()=>{
+    eyesG.classList.add('blink');
+    setTimeout(()=>{eyesG.classList.remove('blink');blink()},140);
+  },2400+Math.random()*3600);
+})();
+/* buddy voice — synth babble, no audio files */
+const VOICES={blob:[420,'sine'],bot:[190,'square'],bean:[380,'sine'],ghost:[300,'sine'],shroom:[340,'sine'],cat:[540,'sine'],dino:[150,'sawtooth'],frog:[220,'square'],star:[560,'triangle'],heart:[470,'sine']};
+const LINES={
+  any:['hi.','i live here now.','feed me.','print me!!','i saw everything.','nice desk. mine now.','pet me. carefully.','wow. a visitor.'],
+  blob:['blob life.'],bot:['BEEP. hello human.'],bean:['NOT a potato.'],ghost:['boo. did it work?'],
+  shroom:["i'm a fun-gi."],cat:['meow. obviously.'],dino:['RAWR. (tiny)'],frog:['ribbit, probably.'],
+  star:["i'm literally a star."],heart:['love u. no takebacks.']
+};
+let actx;
+function babble(){
+  actx=actx||new(window.AudioContext||window.webkitAudioContext)();
+  const[base,type]=VOICES[state.shape],t0=actx.currentTime,n=4+Math.floor(Math.random()*3);
+  for(let i=0;i<n;i++){
+    const o=actx.createOscillator(),g=actx.createGain(),t=t0+i*.095;
+    o.type=type;
+    o.frequency.setValueAtTime(base*(0.85+Math.random()*.45),t);
+    o.frequency.exponentialRampToValueAtTime(base*(0.85+Math.random()*.45),t+.07);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(.13,t+.015);
+    g.gain.exponentialRampToValueAtTime(.001,t+.09);
+    o.connect(g).connect(actx.destination);
+    o.start(t);o.stop(t+.1);
+  }
+  return n*.095;
+}
+const bubble=document.getElementById('speechBubble');
+let bubbleT,talkT;
+rig.addEventListener('click',()=>{
+  const dur=babble();
+  const pool=LINES.any.concat(LINES[state.shape]||[]);
+  bubble.textContent=pool[Math.floor(Math.random()*pool.length)];
+  bubble.classList.add('show');
+  mouthG.classList.add('talk');
+  clearTimeout(bubbleT);clearTimeout(talkT);
+  talkT=setTimeout(()=>mouthG.classList.remove('talk'),dur*1000);
+  bubbleT=setTimeout(()=>bubble.classList.remove('show'),2200);
+});
 renderBuddy();
+booted=true;
 
 /* ================= scroll-driven print build ================= */
 const canvas=document.getElementById('buildCanvas'),ctx=canvas.getContext('2d');
@@ -776,6 +1179,13 @@ function draw(P){
     tracePath(scale,cx,cy,yOff,1);
     ctx.stroke();
   }
+  /* fine layer lines so the walls read as printed plastic */
+  ctx.lineWidth=1.2;
+  ctx.strokeStyle='rgba(5,10,20,.3)';
+  for(let i=2;i<Math.min(full,LAYERS)-1;i+=3){
+    tracePath(scale,cx,cy,baseY-i*layerGap,1);
+    ctx.stroke();
+  }
 
   /* top face */
   let nozzle=null;
@@ -809,8 +1219,26 @@ function draw(P){
     ctx.shadowBlur=0;
   }
 
-  /* print head */
-  if(!done){
+  /* printer machine — fades out over the last few layers instead of popping */
+  const machineA=clamp01((.88-P)/.05);
+  if(machineA>0){
+    ctx.save();
+    ctx.globalAlpha=machineA;
+    const railX=Math.min(W*.44,scale*1.9),railW=12;
+    const plateY=cy+scale*.62;
+
+    /* vertical frame rails */
+    for(const x of[cx-railX,cx+railX]){
+      const rg=ctx.createLinearGradient(x-railW,0,x+railW,0);
+      rg.addColorStop(0,'#0c1424');rg.addColorStop(.45,'#2b3d5e');rg.addColorStop(1,'#0c1424');
+      ctx.fillStyle=rg;
+      ctx.fillRect(x-railW/2,0,railW,plateY+14);
+      ctx.fillStyle='rgba(77,163,255,.16)';
+      ctx.fillRect(x-1,0,2,plateY+14);
+      ctx.fillStyle='#141e30';
+      ctx.fillRect(x-railW*1.6,plateY+8,railW*3.2,8);
+    }
+
     let hx,hy;
     if(P<.06){
       hx=cx;hy=lerp(-80,cy+baseY-90,clamp01(P/.06));
@@ -822,18 +1250,31 @@ function draw(P){
     ctx.strokeStyle='rgba(143,165,194,.4)';
     ctx.lineWidth=2.5;
     ctx.beginPath();ctx.moveTo(hx,0);
-    ctx.quadraticCurveTo(hx+18,hy*.4,hx,hy-52);
+    ctx.quadraticCurveTo(hx+18,hy*.4,hx,hy-56);
     ctx.stroke();
-    /* gantry bar */
+    /* gantry bar riding the rails */
+    const gy=hy-78;
     ctx.fillStyle='#141e30';
-    ctx.fillRect(0,hy-78,W,10);
+    ctx.fillRect(cx-railX,gy,railX*2,10);
     ctx.fillStyle='rgba(77,163,255,.15)';
-    ctx.fillRect(0,hy-78,W,2);
-    /* head block */
-    const hg=ctx.createLinearGradient(hx-22,0,hx+22,0);
+    ctx.fillRect(cx-railX,gy,railX*2,2);
+    ctx.fillStyle='#1d2b44';
+    for(const x of[cx-railX,cx+railX]){roundRect(x-railW*1.1,gy-7,railW*2.2,24,4);ctx.fill()}
+    /* head: carriage block */
+    const hg=ctx.createLinearGradient(hx-24,0,hx+24,0);
     hg.addColorStop(0,'#2a3a55');hg.addColorStop(.5,'#48608a');hg.addColorStop(1,'#1c2940');
     ctx.fillStyle=hg;
-    roundRect(hx-22,hy-64,44,44,7);ctx.fill();
+    roundRect(hx-24,hy-66,48,46,7);ctx.fill();
+    /* heatsink fins */
+    ctx.strokeStyle='rgba(10,16,28,.55)';ctx.lineWidth=2;
+    for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(hx-18,hy-58+i*7);ctx.lineTo(hx+1,hy-58+i*7);ctx.stroke()}
+    /* fan grille */
+    ctx.fillStyle='#0e1726';
+    ctx.beginPath();ctx.arc(hx+11,hy-43,9,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(124,192,255,.35)';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(hx+11,hy-43,9,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(hx+11,hy-50);ctx.lineTo(hx+11,hy-36);ctx.moveTo(hx+4,hy-43);ctx.lineTo(hx+18,hy-43);ctx.stroke();
+    /* heater block */
     ctx.fillStyle='#0e1726';
     roundRect(hx-9,hy-22,18,12,3);ctx.fill();
     /* nozzle tip */
@@ -846,6 +1287,7 @@ function draw(P){
       ctx.fillStyle=g;
       ctx.beginPath();ctx.arc(hx,hy,26,0,Math.PI*2);ctx.fill();
     }
+    ctx.restore();
   }
 
   /* HUD + captions */
@@ -864,25 +1306,28 @@ function roundRect(x,y,w,h,r){
   ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
 }
 
-let lastP=-1,glowLoop=null;
-function onScroll(){
+/* the drawn progress chases the scroll position, so a fast flick
+   animates through the layers instead of teleporting */
+let curP=0,raf=null;
+function scrollP(){
   const rect=wrap.getBoundingClientRect();
-  const total=rect.height-innerHeight;
-  const P=clamp01(-rect.top/total);
-  if(P!==lastP||P>=.88){draw(P);lastP=P}
-  /* keep the finished-glow pulsing while pinned at the end */
-  if(P>=.88&&rect.bottom>innerHeight&&!glowLoop){
-    glowLoop=requestAnimationFrame(function pulse(){
-      const r=wrap.getBoundingClientRect();
-      const p=clamp01(-r.top/(r.height-innerHeight));
-      if(p>=.88&&r.top<0&&r.bottom>innerHeight){draw(p);glowLoop=requestAnimationFrame(pulse)}
-      else glowLoop=null;
-    });
-  }
+  return clamp01(-rect.top/(rect.height-innerHeight));
 }
-addEventListener('scroll',()=>requestAnimationFrame(onScroll),{passive:true});
-addEventListener('resize',()=>{lastP=-1;onScroll()});
-onScroll();
+function frame(){
+  const t=scrollP();
+  curP+=(t-curP)*.1;
+  if(Math.abs(t-curP)<.0004)curP=t;
+  draw(curP);
+  const rect=wrap.getBoundingClientRect();
+  const visible=rect.top<innerHeight&&rect.bottom>0;
+  /* keep looping while catching up, or while the finished glow pulses */
+  if(visible&&(curP!==t||curP>=.88))raf=requestAnimationFrame(frame);
+  else raf=null;
+}
+function wake(){if(!raf)raf=requestAnimationFrame(frame)}
+addEventListener('scroll',wake,{passive:true});
+addEventListener('resize',wake);
+curP=scrollP();wake();
 </script>
 </body>
 </html>
