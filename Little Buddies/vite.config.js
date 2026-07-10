@@ -33,4 +33,7 @@ export default defineConfig({
   base: './',
   plugins: [react(), roomServer()],
   server: { port: Number(process.env.PORT) || 5173 },
+  // .claude/worktrees holds session worktree copies of this repo — without the
+  // exclude, vitest runs their duplicate test files too
+  test: { exclude: ['**/node_modules/**', '**/dist/**', '**/.claude/**'] },
 });
