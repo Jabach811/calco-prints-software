@@ -50,8 +50,8 @@ export function DanceUI() {
     danceSession.active = false;
     danceSession.handle.stop();
     const grade = gradeFor(e.score, maxScore(danceSession.noteCount));
-    setResult({ score: e.score, grade, maxCombo: e.maxCombo, counts: { ...e.counts } });
-    useGame.getState().finishDance({ grade, song: danceSession.track.name });
+    const paid = useGame.getState().finishDance({ grade, song: danceSession.track.name });
+    setResult({ score: e.score, grade, maxCombo: e.maxCombo, counts: { ...e.counts }, ...paid });
     setPhase('results');
   };
 
@@ -113,6 +113,7 @@ export function DanceUI() {
       <div className="dance-counts">
         ⭐ Perfect {result.counts.perfect} · 👍 Good {result.counts.good} · 💨 Miss {result.counts.miss} · 🔥 Best combo {result.maxCombo}
       </div>
+      <div className="dance-counts">🪙 +{result.coins} coins{result.firstClear ? ' · 🪩 Disco Sticker unlocked!' : ''}</div>
       <div className="dance-result-btns">
         <button className="arcade-back" onClick={() => { resetSession(); setPhase('difficulty'); }}>Play again</button>
         <button className="arcade-back" onClick={() => { resetSession(); setPhase('select'); }}>Songs</button>

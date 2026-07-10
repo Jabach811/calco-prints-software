@@ -4,7 +4,7 @@ import { AMBIENT_NPCS } from '../data/npcs.js';
 import { VOICE, DESK_LINES, SNACK_LINES, STARTER_PHRASES, UNLOCK_PHRASES, STICKERS, COLLECTIBLES, SNACKS } from '../data/dialogue.js';
 import { playerRt, remoteRts, upsertRemoteRt } from './rt.js';
 import { connectTransport } from '../net/transport.js';
-import { sfx, setAmbientPaused } from '../systems/audio.js';
+import { sfx, setAmbientPaused, initAudio } from '../systems/audio.js';
 import { startIntro } from './introClock.js';
 
 const now = () => performance.now() / 1000;
@@ -658,6 +658,7 @@ export const useGame = create((set, get) => ({
   arcade: { open: false, game: null }, // game: registry id while one is mounted
   curtain: null, // 'closing' | 'opening' | null
   enterArcade() {
+    initAudio();
     if (get().curtain) return;
     set({ curtain: 'closing' });
     sfx('whoosh');
@@ -683,15 +684,17 @@ export const useGame = create((set, get) => ({
   launchGame(id) { set({ arcade: { open: true, game: id } }); sfx('blip'); },
   quitToArcade() { set({ arcade: { open: true, game: null } }); },
   finishDance({ grade, song }) {
+    const firstClear = !get().progress.flags.discoSticker;
     const coins = { S: 25, A: 18, B: 12, C: 5 }[grade] || 5;
     get().award({ coins, xp: 15 });
     get().addToast(`${song}: grade ${grade}! +${coins} coins`, '🕺');
-    if (!get().progress.flags.discoSticker) {
+    if (firstClear) {
       set((st) => ({ progress: { ...st.progress, flags: { ...st.progress.flags, discoSticker: true } } }));
       get().award({ sticker: 'disco', xp: 10 });
       get().addToast('Disco Sticker unlocked!', '🪩');
       sfx('tada');
     }
+    return { coins, firstClear };
   },
 
   // parent/safety controls
