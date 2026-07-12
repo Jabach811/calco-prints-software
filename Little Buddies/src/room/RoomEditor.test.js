@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { compatibleRoomItems, roomSlotLabel } from './RoomEditor.jsx';
 
 describe('RoomEditor helpers', () => {
@@ -13,5 +14,14 @@ describe('RoomEditor helpers', () => {
 
   it('turns fixed slot IDs into concise visible labels', () => {
     expect(roomSlotLabel('trophy')).toBe('Trophy');
+  });
+});
+
+describe('RoomEditor short-height layout', () => {
+  it('keeps panel actions visible while only the item tray scrolls', () => {
+    const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+    expect(css).toMatch(/\.room-item-panel\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/s);
+    expect(css).toMatch(/\.room-item-tray\s*\{[^}]*min-height:\s*0[^}]*overflow:\s*auto/s);
+    expect(css).not.toMatch(/\.room-item-panel\s*\{[^}]*overflow:\s*hidden/s);
   });
 });
