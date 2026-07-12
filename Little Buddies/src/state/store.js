@@ -189,7 +189,22 @@ export const useGame = create((set, get) => ({
     return applyRoomResult(set, get, removeRoomItemModel(get().progress, slotId));
   },
   advanceWelcomeHome(event) {
-    return applyRoomResult(set, get, advanceWelcomeHomeModel(get().progress, event));
+    let result = advanceWelcomeHomeModel(get().progress, event);
+    if (!result.changed) return false;
+
+    if (result.progress.journeys.welcomeHome.step === 'receive-decoration') {
+      const unlockResult = unlockRoomItemModel(result.progress, 'sunny-rug');
+      const rewardedProgress = {
+        ...(unlockResult.changed ? unlockResult.progress : result.progress),
+        roomUnlocked: true,
+      };
+      result = advanceWelcomeHomeModel(rewardedProgress, 'decoration-received');
+      return applyRoomResult(set, get, result, {
+        text: 'Sunny Rug unlocked for Room 107!', icon: '🏠', gold: true,
+      });
+    }
+
+    return applyRoomResult(set, get, result);
   },
   enterRoom() {
     const decision = roomEntryDecision(get().progress);
@@ -410,6 +425,7 @@ export const useGame = create((set, get) => ({
           set({ giftPopup: { text: 'Mail loot!', reward } });
           get().setWorld({ mailboxGift: false });
           get().questStep('mailbox');
+          get().advanceWelcomeHome('eligible-activity');
           setTimeout(() => get().setWorld({ mailboxGift: true }), 90000);
         } else {
           say('Empty. The dragon must be off duty.');
@@ -675,6 +691,7 @@ export const useGame = create((set, get) => ({
   checkIn() {
     if (get().checkedIn) return;
     set({ checkedIn: true });
+    get().advanceWelcomeHome('desk-met');
     const s = get();
     const desk = DESK_LINES(s.profile.name);
     setTimeout(() => {

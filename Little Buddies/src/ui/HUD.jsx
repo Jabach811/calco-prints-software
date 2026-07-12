@@ -8,6 +8,7 @@ import { STARTER_PHRASES, UNLOCK_PHRASES, EMOTES, STICKERS } from '../data/dialo
 import { ACTION_COLORS } from '../data/palette.js';
 import { drawPortrait } from './portrait.js';
 import { isMuted, setMuted } from '../systems/audio.js';
+import { WELCOME_OBJECTIVES } from '../room/roomModel.js';
 
 const now = () => performance.now() / 1000;
 
@@ -24,6 +25,8 @@ function PlayerCard() {
   const progress = useGame((s) => s.progress);
   const moodIcon = useGame((s) => s.moodIcon);
   const quest = progress.quests.find((q) => !q.done);
+  const journey = progress.journeys?.welcomeHome;
+  const objective = journey && !journey.completed ? WELCOME_OBJECTIVES[journey.step] : null;
   const xpMax = progress.level * 100;
   return (
     <div className="hud-topleft">
@@ -40,9 +43,9 @@ function PlayerCard() {
         </div>
       </div>
       <div className="coin-pill">🪙 {progress.coins}</div>
-      {quest && (
+      {(objective || quest) && (
         <div className="quest-pill">
-          🎯 {quest.label} <b>{quest.n}/{quest.target}</b>
+          🎯 {objective || quest.label} {!objective && <b>{quest.n}/{quest.target}</b>}
         </div>
       )}
     </div>
@@ -90,7 +93,7 @@ function CornerButtons() {
         <span className="big-btn-icon">🎒</span>
         <span>Backpack</span>
       </button>
-      <button className="big-btn" onClick={() => setPanel('homeOpen', true)}>
+      <button className="big-btn" onClick={() => useGame.getState().enterRoom()}>
         <span className="big-btn-icon">🏠</span>
         <span>Home</span>
       </button>

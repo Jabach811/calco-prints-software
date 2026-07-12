@@ -1,4 +1,4 @@
-// Popups & panels: snack menu, mailbox gift, postcard, backpack, home stub,
+// Popups & panels: snack menu, mailbox gift, postcard, backpack,
 // friends (invite-code multiplayer), parent controls.
 import React, { useState } from 'react';
 import { useGame } from '../state/store.js';
@@ -130,22 +130,6 @@ export function Backpack() {
   );
 }
 
-export function HomePanel() {
-  const open = useGame((s) => s.homeOpen);
-  if (!open) return null;
-  return (
-    <Modal title="🏠 Your Room" onClose={() => useGame.getState().setPanel('homeOpen', false)} small>
-      <div className="home-door">
-        <div className="door-shape">
-          <div className="door-plaque">107</div>
-          <div className="door-knob" />
-        </div>
-      </div>
-      <div className="home-text">Room 107 is still under construction.<br />Coming soon.</div>
-    </Modal>
-  );
-}
-
 export function FriendsPanel() {
   const open = useGame((s) => s.friendsOpen);
   const room = useGame((s) => s.room);
@@ -250,7 +234,6 @@ export function AllPanels() {
       <GiftPopup />
       <Postcard />
       <Backpack />
-      <HomePanel />
       <FriendsPanel />
       <ParentPanel />
     </>
