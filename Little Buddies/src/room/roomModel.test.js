@@ -46,9 +46,47 @@ describe('room progress', () => {
     p = first.progress;
     expect(unlockRoomItem(p, 'sunny-rug').changed).toBe(false);
     expect(equipRoomItem(p, 'wall', 'sunny-rug').reason).toBe('wrong-slot');
-    expect(equipRoomItem(p, 'rug', 'cloud-rug').reason).toBe('not-owned');
+    expect(equipRoomItem(p, 'rug', 'garden-rug').reason).toBe('not-owned');
+    expect(equipRoomItem(p, 'rug', 'missing').reason).toBe('unknown-item');
     expect(equipRoomItem(p, 'rug', 'sunny-rug').progress.roomLayout.rug).toBe('sunny-rug');
     expect(removeRoomItem(equipRoomItem(p, 'rug', 'sunny-rug').progress, 'rug').progress.roomLayout.rug).toBeNull();
+  });
+
+  it('keeps frozen inputs unchanged and makes repeated actions idempotent', () => {
+    const initial = createRoomProgress();
+    Object.freeze(initial.roomInventory);
+    Object.freeze(initial.roomLayout);
+    Object.freeze(initial.journeys.welcomeHome);
+    Object.freeze(initial.journeys);
+    Object.freeze(initial);
+
+    const unlocked = unlockRoomItem(initial, 'sunny-rug');
+    expect(initial).toEqual(createRoomProgress());
+    expect(unlockRoomItem(unlocked.progress, 'sunny-rug')).toEqual({
+      progress: unlocked.progress,
+      changed: false,
+      reason: 'already-owned',
+    });
+
+    Object.freeze(unlocked.progress.roomInventory);
+    Object.freeze(unlocked.progress);
+    const equipped = equipRoomItem(unlocked.progress, 'rug', 'sunny-rug');
+    expect(unlocked.progress.roomLayout.rug).toBeNull();
+    expect(equipRoomItem(equipped.progress, 'rug', 'sunny-rug')).toEqual({
+      progress: equipped.progress,
+      changed: false,
+      reason: 'equipped',
+    });
+
+    Object.freeze(equipped.progress.roomLayout);
+    Object.freeze(equipped.progress);
+    const removed = removeRoomItem(equipped.progress, 'rug');
+    expect(equipped.progress.roomLayout.rug).toBe('sunny-rug');
+    expect(removeRoomItem(removed.progress, 'rug')).toEqual({
+      progress: removed.progress,
+      changed: false,
+      reason: 'already-empty',
+    });
   });
 
   it('advances the welcome journey only on explicit matching events', () => {

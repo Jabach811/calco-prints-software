@@ -63,9 +63,9 @@ export function unlockRoomItem(progress, itemId) {
 
 export function equipRoomItem(progress, slotId, itemId) {
   if (!ROOM_SLOTS.includes(slotId)) return unchanged(progress, 'unknown-slot');
-  if (!progress.roomInventory.includes(itemId)) return unchanged(progress, 'not-owned');
   const catalogItem = roomItemById(itemId);
   if (!catalogItem) return unchanged(progress, 'unknown-item');
+  if (!progress.roomInventory.includes(itemId)) return unchanged(progress, 'not-owned');
   if (catalogItem.slot !== slotId) return unchanged(progress, 'wrong-slot');
   if (progress.roomLayout[slotId] === itemId) return unchanged(progress, 'equipped');
   return {
