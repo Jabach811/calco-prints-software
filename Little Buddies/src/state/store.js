@@ -6,6 +6,14 @@ import { playerRt, remoteRts, upsertRemoteRt } from './rt.js';
 import { connectTransport } from '../net/transport.js';
 import { sfx, setAmbientPaused, initAudio } from '../systems/audio.js';
 import { startIntro } from './introClock.js';
+import {
+  migrateRoomProgress,
+  unlockRoomItem as unlockRoomItemModel,
+  equipRoomItem as equipRoomItemModel,
+  removeRoomItem as removeRoomItemModel,
+  advanceWelcomeHome as advanceWelcomeHomeModel,
+  roomEntryDecision,
+} from '../room/roomModel.js';
 
 const now = () => performance.now() / 1000;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -65,11 +73,20 @@ const bootScreen = load('lbw-profile', DEFAULT_PROFILE) ? 'cinematic' : 'creator
 // (the frame pump can advance frames first and would instantly finish the intro)
 if (bootScreen === 'cinematic') startIntro();
 
+function applyRoomResult(set, get, result, toast) {
+  if (!result.changed) return false;
+  set({ progress: result.progress });
+  get().persist();
+  if (toast) get().addToast(toast.text, toast.icon, toast.gold);
+  return true;
+}
+
 export const useGame = create((set, get) => ({
   // ---------- screens ----------
   screen: bootScreen,
   profile: migrateProfile(load('lbw-profile', DEFAULT_PROFILE)) || DEFAULT_PROFILE,
-  progress: load('lbw-progress', DEFAULT_PROGRESS) || { ...DEFAULT_PROGRESS },
+  progress: migrateRoomProgress(load('lbw-progress', DEFAULT_PROGRESS) || { ...DEFAULT_PROGRESS }),
+  roomScene: { open: false, editingSlot: null },
 
   setProfile(profile) {
     localStorage.setItem('lbw-profile', JSON.stringify(profile));
@@ -149,6 +166,60 @@ export const useGame = create((set, get) => ({
   persist() {
     const s = get();
     localStorage.setItem('lbw-progress', JSON.stringify(s.progress));
+  },
+
+  // ---------- Room 107 ----------
+  selectRoomSlot(slotId) {
+    set((s) => ({ roomScene: { ...s.roomScene, editingSlot: slotId } }));
+  },
+  unlockRoomItem(itemId) {
+    return applyRoomResult(set, get, unlockRoomItemModel(get().progress, itemId), {
+      text: 'Room item unlocked!', icon: '🎁', gold: true,
+    });
+  },
+  equipRoomItem(slotId, itemId) {
+    let result = equipRoomItemModel(get().progress, slotId, itemId);
+    if (result.changed && itemId === 'sunny-rug') {
+      const journeyResult = advanceWelcomeHomeModel(result.progress, 'sunny-rug-placed');
+      if (journeyResult.changed) result = journeyResult;
+    }
+    return applyRoomResult(set, get, result);
+  },
+  removeRoomItem(slotId) {
+    return applyRoomResult(set, get, removeRoomItemModel(get().progress, slotId));
+  },
+  advanceWelcomeHome(event) {
+    return applyRoomResult(set, get, advanceWelcomeHomeModel(get().progress, event));
+  },
+  enterRoom() {
+    const decision = roomEntryDecision(get().progress);
+    if (!decision.allowed) {
+      get().addToast(decision.objective, '🏠', false);
+      return false;
+    }
+    if (get().curtain) return false;
+    initAudio();
+    set({ homeOpen: false, curtain: 'closing' });
+    sfx('whoosh');
+    setTimeout(() => {
+      setAmbientPaused(true);
+      const result = advanceWelcomeHomeModel(get().progress, 'room-entered');
+      applyRoomResult(set, get, result);
+      set({ roomScene: { open: true, editingSlot: null }, curtain: 'opening' });
+    }, 700);
+    setTimeout(() => set({ curtain: null }), 1400);
+    return true;
+  },
+  exitRoom() {
+    if (get().curtain) return false;
+    set({ curtain: 'closing' });
+    sfx('whoosh');
+    setTimeout(() => {
+      setAmbientPaused(false);
+      set({ roomScene: { open: false, editingSlot: null }, curtain: 'opening' });
+    }, 700);
+    setTimeout(() => set({ curtain: null }), 1400);
+    return true;
   },
 
   // ---------- quests ----------

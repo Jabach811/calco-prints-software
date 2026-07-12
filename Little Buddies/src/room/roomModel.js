@@ -3,6 +3,15 @@ import { ROOM_SLOTS, roomItemById } from './roomCatalog.js';
 const EMPTY_LAYOUT = Object.freeze(Object.fromEntries(ROOM_SLOTS.map((slot) => [slot, null])));
 const DEFAULT_WELCOME_HOME = Object.freeze({ step: 'meet-front-desk', completed: false });
 
+export const WELCOME_OBJECTIVES = Object.freeze({
+  'meet-front-desk': 'Meet the front-desk buddy',
+  'do-first-activity': 'Complete your first hotel activity',
+  'receive-decoration': 'Collect your Room 107 decoration',
+  'enter-room': 'Enter Room 107',
+  'place-decoration': 'Place the Sunny Rug in Room 107',
+  complete: 'Explore the hotel',
+});
+
 export function createRoomProgress() {
   return {
     roomUnlocked: false,
@@ -45,6 +54,13 @@ export function migrateRoomProgress(progress = {}) {
       welcomeHome,
     },
   };
+}
+
+export function roomEntryDecision(progress) {
+  if (progress.roomUnlocked === true) return { allowed: true, objective: null };
+  const journey = progress.journeys?.welcomeHome ?? DEFAULT_WELCOME_HOME;
+  const step = journey.completed ? 'complete' : journey.step;
+  return { allowed: false, objective: WELCOME_OBJECTIVES[step] ?? WELCOME_OBJECTIVES['meet-front-desk'] };
 }
 
 function unchanged(progress, reason) {
