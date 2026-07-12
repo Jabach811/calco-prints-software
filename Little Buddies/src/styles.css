@@ -528,6 +528,58 @@ button { font-family: inherit; border: none; cursor: pointer; }
 .dance-counts { color: #f7efdd; font-weight: 700; }
 .dance-result-btns { display: flex; gap: 12px; }
 
+/* ---------- Room 107 ---------- */
+.room-screen, .room-loading { position: fixed; inset: 0; background: #8ed4f7; }
+.room-screen { z-index: 35; overflow: hidden; color: #35301f; }
+.room-loading { z-index: 35; display: grid; place-items: center; font-family: 'Baloo 2', sans-serif; font-size: 24px; font-weight: 700; }
+.room-canvas-wrap { position: absolute; inset: 0; }
+.room-header { position: absolute; z-index: 2; inset: calc(14px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) auto calc(18px + env(safe-area-inset-left)); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; pointer-events: none; }
+.room-header h1 { font-family: 'Baloo 2', sans-serif; font-size: clamp(30px, 5vw, 48px); line-height: .9; color: #35301f; text-shadow: 0 2px #fff8e8; }
+.room-kicker { font-size: 12px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; }
+.room-objective { margin-top: 8px; max-width: 320px; padding: 7px 12px; border-radius: 999px; background: rgba(255, 253, 247, .9); font-size: 13px; font-weight: 800; }
+.room-exit-button, .room-editor button { min-height: 44px; pointer-events: auto; }
+.room-exit-button { padding: 0 18px; border-radius: 999px; background: #fffdf7; color: #35301f; font-weight: 900; box-shadow: 0 4px 0 rgba(53, 48, 31, .25); }
+.room-exit-button:disabled { opacity: .55; }
+.room-editor { position: absolute; z-index: 3; left: calc(18px + env(safe-area-inset-left)); right: calc(18px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.room-slot-strip { align-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; pointer-events: auto; }
+.room-slot-button, .room-back-button, .room-remove-button, .room-item-button { border: 3px solid transparent; font-weight: 900; }
+.room-slot-button { padding: 0 15px; border-radius: 999px; background: #fffdf7; color: #6b5c3a; box-shadow: 0 3px 0 rgba(53, 48, 31, .2); }
+.room-slot-button[aria-pressed='true'] { border-color: #35301f; background: #ffd23f; color: #35301f; }
+.room-item-panel, .room-editor-hint { align-self: center; width: min(720px, 100%); border-radius: 22px; background: rgba(255, 253, 247, .96); box-shadow: 0 12px 32px rgba(53, 48, 31, .25); pointer-events: auto; }
+.room-item-panel { padding: 12px; }
+.room-editor-hint { width: max-content; max-width: 100%; padding: 10px 16px; text-align: center; font-weight: 800; }
+.room-editor-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.room-editor-heading h2 { font-family: 'Baloo 2', sans-serif; font-size: 21px; }
+.room-back-button { padding: 0 16px; border-radius: 999px; background: #e8dfca; color: #35301f; }
+.room-item-tray { display: flex; gap: 9px; margin-top: 8px; overflow: auto; overscroll-behavior: contain; }
+.room-item-button { min-width: 140px; padding: 8px 12px; border-radius: 14px; background: #f3ecd9; color: #4a4231; display: flex; align-items: center; gap: 9px; text-align: left; }
+.room-item-button[aria-pressed='true'] { border-color: #3d8bfd; background: #eaf2ff; }
+.room-item-swatch { flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; background: var(--room-item-color); box-shadow: inset 0 0 0 3px rgba(255,255,255,.65); }
+.room-empty { min-height: 44px; display: flex; align-items: center; color: #6b5c3a; font-weight: 700; }
+.room-remove-button { margin-top: 9px; padding: 0 16px; border-radius: 999px; background: #ffe5e1; color: #9d2e24; }
+.room-screen button:focus-visible { outline: 3px solid #132b50; outline-offset: 3px; }
+
+@media (max-height: 650px) {
+  .room-item-tray { max-height: 92px; }
+  .room-item-panel { max-height: 158px; overflow: hidden; }
+}
+
+@media (max-width: 600px) {
+  .room-header { align-items: flex-start; }
+  .room-header h1 { font-size: 32px; }
+  .room-objective { max-width: 58vw; border-radius: 14px; }
+  .room-exit-button { padding-inline: 12px; }
+  .room-editor { bottom: calc(8px + env(safe-area-inset-bottom)); }
+  .room-slot-strip { gap: 5px; }
+  .room-slot-button { padding-inline: 10px; font-size: 12px; }
+  .room-item-panel { max-height: 38vh; }
+  .room-item-tray { max-height: 19vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room-screen *, .room-loading { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
 @media (max-width: 760px) {
   .arcade-screen { justify-content: flex-start; padding: 24px 12px 40px; }
   .arcade-title { font-size: 32px; text-align: center; }

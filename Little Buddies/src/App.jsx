@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { World } from './three/World.jsx';
 import { PlayerController } from './three/PlayerController.jsx';
@@ -15,9 +15,12 @@ import { useGame } from './state/store.js';
 import { initAudio } from './systems/audio.js';
 import { startFramePump, SizeSync } from './three/framePump.js';
 
+const LazyRoomScreen = React.lazy(() => import('./room/roomEntry.js'));
+
 export default function App() {
   const screen = useGame((s) => s.screen);
   const arcade = useGame((s) => s.arcade);
+  const roomOpen = useGame((s) => s.roomScene.open);
   const ActiveStage = arcade.game ? gameById[arcade.game]?.Stage : null;
 
   useEffect(() => { startFramePump(); }, []);
@@ -31,7 +34,14 @@ export default function App() {
 
   return (
     <div className="app">
-      {screen === 'creator' ? (
+      {roomOpen ? (
+        <>
+          <Suspense fallback={<div className="room-loading">Opening Room 107...</div>}>
+            <LazyRoomScreen />
+          </Suspense>
+          <Curtain />
+        </>
+      ) : screen === 'creator' ? (
         <Creator />
       ) : (
         <>
