@@ -18,6 +18,10 @@ export function roomRewardForEvent(event) {
   return null;
 }
 
+export function roomItemName(itemId) {
+  return roomItemById(itemId)?.name ?? 'Room item';
+}
+
 export function dailyRoomRewardForDate(dateString) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
   if (!match) return null;

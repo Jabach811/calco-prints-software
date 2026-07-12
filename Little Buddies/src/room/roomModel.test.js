@@ -7,9 +7,15 @@ import {
   equipRoomItem,
   removeRoomItem,
   advanceWelcomeHome,
+  roomItemName,
 } from './roomModel.js';
 
 describe('room catalog', () => {
+  it('exposes item names through the pure room model boundary', () => {
+    expect(roomItemName('sunny-rug')).toBe('Sunny Rug');
+    expect(roomItemName('missing')).toBe('Room item');
+  });
+
   it('contains exactly three valid items for each fixed slot', () => {
     expect(validateRoomCatalog(ROOM_CATALOG)).toEqual([]);
     expect(ROOM_CATALOG).toHaveLength(15);

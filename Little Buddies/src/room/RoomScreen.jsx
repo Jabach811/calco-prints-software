@@ -6,16 +6,32 @@ import { WELCOME_OBJECTIVES } from './roomModel.js';
 import { RoomEditor } from './RoomEditor.jsx';
 import { RoomScene } from './RoomScene.jsx';
 
-function useReducedMotion() {
+export function getReducedMotionPreference(query) {
+  return Boolean(query?.matches);
+}
+
+export function subscribeToReducedMotion(query, onChange) {
+  if (!query) return () => {};
+  if (query.addEventListener) {
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }
+  query.addListener?.(onChange);
+  return () => query.removeListener?.(onChange);
+}
+
+export function useReducedMotion() {
   const [reduced, setReduced] = useState(() => (
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    typeof window !== 'undefined'
+      && getReducedMotionPreference(window.matchMedia('(prefers-reduced-motion: reduce)'))
   ));
 
   useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
     const query = window.matchMedia('(prefers-reduced-motion: reduce)');
     const update = (event) => setReduced(event.matches);
-    query.addEventListener?.('change', update);
-    return () => query.removeEventListener?.('change', update);
+    setReduced(getReducedMotionPreference(query));
+    return subscribeToReducedMotion(query, update);
   }, []);
   return reduced;
 }

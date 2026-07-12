@@ -15,8 +15,8 @@ import {
   dailyRoomRewardForDate,
   roomRewardForEvent,
   roomEntryDecision,
+  roomItemName,
 } from '../room/roomModel.js';
-import { roomItemById } from '../room/roomCatalog.js';
 
 const now = () => performance.now() / 1000;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -195,9 +195,8 @@ export const useGame = create((set, get) => ({
   grantRoomReward(event) {
     const itemId = roomRewardForEvent(event);
     if (!itemId) return false;
-    const catalogItem = roomItemById(itemId);
     return applyRoomResult(set, get, unlockRoomItemModel(get().progress, itemId), {
-      text: `${catalogItem.name} unlocked for Room 107!`, icon: '🎁', gold: true,
+      text: `${roomItemName(itemId)} unlocked for Room 107!`, icon: '🎁', gold: true,
     });
   },
   claimDailyRoomReward(dateString = localDateString()) {
@@ -212,7 +211,7 @@ export const useGame = create((set, get) => ({
     set({ progress });
     get().persist();
     if (result.changed) {
-      get().addToast(`${roomItemById(itemId).name} unlocked for Room 107!`, '🎁');
+      get().addToast(`${roomItemName(itemId)} unlocked for Room 107!`, '🎁');
     }
     return result.changed;
   },

@@ -534,11 +534,12 @@ button { font-family: inherit; border: none; cursor: pointer; }
 .room-loading { z-index: 35; display: grid; place-items: center; font-family: 'Baloo 2', sans-serif; font-size: 24px; font-weight: 700; }
 .room-canvas-wrap { position: absolute; inset: 0; }
 .room-header { position: absolute; z-index: 2; inset: calc(14px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) auto calc(18px + env(safe-area-inset-left)); display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; pointer-events: none; }
+.room-header > div { min-width: 0; }
 .room-header h1 { font-family: 'Baloo 2', sans-serif; font-size: clamp(30px, 5vw, 48px); line-height: .9; color: #35301f; text-shadow: 0 2px #fff8e8; }
 .room-kicker { font-size: 12px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase; }
 .room-objective { margin-top: 8px; max-width: 320px; padding: 7px 12px; border-radius: 999px; background: rgba(255, 253, 247, .9); font-size: 13px; font-weight: 800; }
 .room-exit-button, .room-editor button { min-height: 44px; pointer-events: auto; }
-.room-exit-button { padding: 0 18px; border-radius: 999px; background: #fffdf7; color: #35301f; font-weight: 900; box-shadow: 0 4px 0 rgba(53, 48, 31, .25); }
+.room-exit-button { flex: 0 0 auto; padding: 0 18px; border-radius: 999px; background: #fffdf7; color: #35301f; font-weight: 900; box-shadow: 0 4px 0 rgba(53, 48, 31, .25); }
 .room-exit-button:disabled { opacity: .55; }
 .room-editor { position: absolute; z-index: 3; left: calc(18px + env(safe-area-inset-left)); right: calc(18px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
 .room-slot-strip { align-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; pointer-events: auto; }

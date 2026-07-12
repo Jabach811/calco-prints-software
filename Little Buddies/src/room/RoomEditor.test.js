@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { compatibleRoomItems, roomSlotLabel } from './RoomEditor.jsx';
+import { compatibleRoomItems, focusOnNextFrame, roomSlotLabel } from './RoomEditor.jsx';
 
 describe('RoomEditor helpers', () => {
   it('returns only owned catalog items compatible with the selected slot', () => {
@@ -15,6 +15,15 @@ describe('RoomEditor helpers', () => {
   it('turns fixed slot IDs into concise visible labels', () => {
     expect(roomSlotLabel('trophy')).toBe('Trophy');
   });
+
+  it('defers focus until the next animation frame', () => {
+    let callback;
+    let focused = false;
+    focusOnNextFrame({ focus: () => { focused = true; } }, (next) => { callback = next; });
+    expect(focused).toBe(false);
+    callback();
+    expect(focused).toBe(true);
+  });
 });
 
 describe('RoomEditor short-height layout', () => {
@@ -23,5 +32,11 @@ describe('RoomEditor short-height layout', () => {
     expect(css).toMatch(/\.room-item-panel\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/s);
     expect(css).toMatch(/\.room-item-tray\s*\{[^}]*min-height:\s*0[^}]*overflow:\s*auto/s);
     expect(css).not.toMatch(/\.room-item-panel\s*\{[^}]*overflow:\s*hidden/s);
+  });
+
+  it('allows the phone header content to shrink beside the exit control', () => {
+    const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+    expect(css).toMatch(/\.room-header\s*>\s*div\s*\{[^}]*min-width:\s*0/s);
+    expect(css).toMatch(/\.room-exit-button\s*\{[^}]*flex:\s*0\s+0\s+auto/s);
   });
 });
