@@ -16,6 +16,11 @@ describe('room catalog', () => {
     for (const slot of ROOM_SLOTS) {
       expect(ROOM_CATALOG.filter((item) => item.slot === slot)).toHaveLength(3);
     }
+    for (const item of ROOM_CATALOG) {
+      expect(item.render.kind).toBe(item.slot);
+      expect(item.render.color).toMatch(/^#[0-9A-F]{6}$/i);
+      expect(item.render.accent).toMatch(/^#[0-9A-F]{6}$/i);
+    }
   });
 });
 
