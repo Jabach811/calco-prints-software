@@ -432,7 +432,18 @@ function HoldingItem({ rt }) {
 }
 
 // ---------- animation ----------
-export function animateBuddy(rt, refs, dt) {
+export function animateBuddy(rt, refs, dt, reducedMotion = false) {
+  if (reducedMotion) {
+    const { bodyG, armL, armR, inner } = refs;
+    if (!bodyG.current) return;
+    bodyG.current.position.set(0, 0, 0);
+    bodyG.current.rotation.set(0, 0, 0);
+    bodyG.current.scale.set(1, 1, 1);
+    if (armL.current) armL.current.rotation.set(0, 0, 0.45);
+    if (armR.current) armR.current.rotation.set(0, 0, -0.45);
+    if (inner?.current) inner.current.rotation.y = 0;
+    return;
+  }
   rt.animT = (rt.animT || 0) + dt;
   const t = rt.animT;
   const { bodyG, armL, armR, inner } = refs;
@@ -571,7 +582,7 @@ export function animateBuddy(rt, refs, dt) {
 }
 
 // ---------- the component ----------
-export function Buddy({ profile, rt, castShadow = true, children }) {
+export function Buddy({ profile, rt, castShadow = true, reducedMotion = false, children }) {
   const bodyG = useRef();
   const armL = useRef();
   const armR = useRef();
@@ -580,7 +591,7 @@ export function Buddy({ profile, rt, castShadow = true, children }) {
   const bodyMat = mat(color, 'plastic');
   const footMat = mat(darken(color), 'plastic');
 
-  useFrame((_, dt) => animateBuddy(rt, { bodyG, armL, armR }, Math.min(dt, 0.06)));
+  useFrame((_, dt) => animateBuddy(rt, { bodyG, armL, armR }, Math.min(dt, 0.06), reducedMotion));
 
   const bodyGeo = GEO[profile.shape] || GEO.blob;
 

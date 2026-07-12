@@ -21,6 +21,10 @@ const HIT_AREAS = Object.freeze({
   trophy: [1.4, 2.2, 1.4],
 });
 
+export function roomSlotRingRotation(slot) {
+  return slot === 'rug' || slot === 'wall' ? undefined : [-Math.PI / 2, 0, 0];
+}
+
 function Slot({ slot, item, selected, onSelect }) {
   const anchor = ROOM_SLOT_ANCHORS[slot];
   const hitRotation = slot === 'rug' ? [Math.PI / 2, 0, 0] : undefined;
@@ -45,7 +49,7 @@ function Slot({ slot, item, selected, onSelect }) {
         <primitive object={mat('#FFFFFF', 'plastic', { transparent: true, opacity: 0, depthWrite: false })} attach="material" />
       </mesh>
       {selected && (
-        <mesh position={[0, 0.06, 0]} rotation={slot === 'rug' ? undefined : [-Math.PI / 2, 0, 0]} material={mat('#3D8BFD', 'glow')}>
+        <mesh position={[0, 0.06, 0]} rotation={roomSlotRingRotation(slot)} material={mat('#3D8BFD', 'glow')}>
           <torusGeometry args={[slot === 'rug' ? 1.65 : 1.15, 0.055, 6, 32]} />
         </mesh>
       )}
@@ -92,8 +96,6 @@ function RoomShell() {
 
 export function RoomScene({ profile, layout, selectedSlot, onSelectSlot, reducedMotion = false }) {
   const buddyRt = useMemo(() => ({ anim: 'idle', animT: 0 }), []);
-  if (reducedMotion) buddyRt.anim = 'still';
-  else buddyRt.anim = 'idle';
   return (
     <group>
       <RoomShell />
@@ -108,7 +110,7 @@ export function RoomScene({ profile, layout, selectedSlot, onSelectSlot, reduced
       ))}
       {profile && (
         <group position={[0.7, 0.05, 0]} rotation={[0, -0.25, 0]}>
-          <Buddy profile={profile} rt={buddyRt} castShadow={false} />
+          <Buddy profile={profile} rt={buddyRt} castShadow={false} reducedMotion={reducedMotion} />
         </group>
       )}
     </group>
