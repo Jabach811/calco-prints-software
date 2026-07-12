@@ -112,3 +112,24 @@ Remaining non-goals are unchanged: free placement, room commerce, room visits, a
 ## Required follow-up before an unconditional release claim
 
 Run one interactive browser/device pass with working Windows or Chrome automation: full fresh journey with refresh at every step, returning seeded save reload, mouse and keyboard editing, physical/mobile touch at 390 x 844 and short landscape, reduced-motion visuals, repeated curtain transitions, mutual mount inspection, and low-end frame stability. Until that pass is recorded, the correct handoff status is `DONE_WITH_CONCERNS`.
+
+## Post-review correction
+
+Review of commit `e8cfc9a` found that the welcome-home completion reward added coins and XP directly. That preserved one-time reward behavior but bypassed the established `award()` level rollover, phrase unlock, and level-decoration pipeline.
+
+The correction was implemented with a failing boundary regression first:
+
+- Start at level 7 with 690 XP, 205 coins, Sunny Rug owned, and `place-decoration` active.
+- Place Sunny Rug once.
+- Expected and verified: level 8, 15 XP, 230 coins, Cloud Bed unlocked through the existing level-8 room reward, and exactly one Room 107 completion toast.
+
+Implementation now stages the completed journey/layout in state, calls the existing `award({ coins: 25, xp: 25, quiet: true })` pipeline, and then emits the single completion toast. There is no intermediate `applyRoomResult()` persistence, so the completion path does not double-persist or double-toast; normal level-up side effects continue to behave exactly like every other award.
+
+Fresh post-review verification:
+
+- Focused: `vitest run src/room/roomIntegration.test.js` -> 1 file passed, 27 tests passed.
+- Full: `npm test` -> 8 files passed, 67 tests passed.
+- Build: `npm run build` -> exit 0, 700 modules transformed.
+- Main JS: `index-BmT2sKKL.js`, 1,210.94 kB raw / 343.97 kB gzip.
+- Lazy room JS: `roomEntry-CGCQXsYk.js`, 8.79 kB raw / 2.95 kB gzip.
+- Browser limitations and `DONE_WITH_CONCERNS` status remain unchanged.

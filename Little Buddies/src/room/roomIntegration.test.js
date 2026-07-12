@@ -124,6 +124,31 @@ it('awards the welcome-home completion reward exactly once', () => {
   expect(useGame.getState().progress).toMatchObject({ coins: 230, xp: 65 });
 });
 
+it('processes the welcome-home XP reward through level rollover and room milestones', () => {
+  useGame.setState({
+    progress: {
+      ...useGame.getState().progress,
+      coins: 205,
+      level: 7,
+      xp: 690,
+      roomUnlocked: true,
+      roomInventory: ['sunny-rug'],
+      journeys: { welcomeHome: { step: 'place-decoration', completed: false } },
+    },
+  });
+
+  expect(useGame.getState().equipRoomItem('rug', 'sunny-rug')).toBe(true);
+  expect(useGame.getState().progress).toMatchObject({
+    coins: 230,
+    level: 8,
+    xp: 15,
+    roomInventory: expect.arrayContaining(['sunny-rug', 'cloud-bed']),
+  });
+  expect(useGame.getState().toasts.filter(
+    (toast) => toast.text === 'Room 107 ready! +25 coins and +25 XP',
+  )).toHaveLength(1);
+});
+
 it('cleans up a hydrated Home panel flag when entering Room 107', () => {
   useGame.setState({
     homeOpen: true,

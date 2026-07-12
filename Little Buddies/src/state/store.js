@@ -221,24 +221,16 @@ export const useGame = create((set, get) => ({
   },
   equipRoomItem(slotId, itemId) {
     let result = equipRoomItemModel(get().progress, slotId, itemId);
-    let completionToast = null;
     if (result.changed && itemId === 'sunny-rug') {
       const journeyResult = advanceWelcomeHomeModel(result.progress, 'sunny-rug-placed');
       if (journeyResult.changed) {
-        result = {
-          ...journeyResult,
-          progress: {
-            ...journeyResult.progress,
-            coins: journeyResult.progress.coins + 25,
-            xp: journeyResult.progress.xp + 25,
-          },
-        };
-        completionToast = {
-          text: 'Room 107 ready! +25 coins and +25 XP', icon: '🏠', gold: true,
-        };
+        set({ progress: journeyResult.progress });
+        get().award({ coins: 25, xp: 25, quiet: true });
+        get().addToast('Room 107 ready! +25 coins and +25 XP', '🏠');
+        return true;
       }
     }
-    return applyRoomResult(set, get, result, completionToast);
+    return applyRoomResult(set, get, result);
   },
   removeRoomItem(slotId) {
     return applyRoomResult(set, get, removeRoomItemModel(get().progress, slotId));
