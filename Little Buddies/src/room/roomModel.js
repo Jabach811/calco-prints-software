@@ -1,0 +1,118 @@
+import { ROOM_SLOTS, roomItemById } from './roomCatalog.js';
+
+const EMPTY_LAYOUT = Object.freeze(Object.fromEntries(ROOM_SLOTS.map((slot) => [slot, null])));
+const DEFAULT_WELCOME_HOME = Object.freeze({ step: 'meet-front-desk', completed: false });
+
+export function createRoomProgress() {
+  return {
+    roomUnlocked: false,
+    roomInventory: [],
+    roomLayout: { ...EMPTY_LAYOUT },
+    journeys: { welcomeHome: { ...DEFAULT_WELCOME_HOME } },
+  };
+}
+
+export function migrateRoomProgress(progress = {}) {
+  const inventory = [];
+  const seen = new Set();
+  for (const id of Array.isArray(progress.roomInventory) ? progress.roomInventory : []) {
+    if (!seen.has(id) && roomItemById(id)) {
+      seen.add(id);
+      inventory.push(id);
+    }
+  }
+
+  const roomLayout = { ...EMPTY_LAYOUT };
+  for (const slot of ROOM_SLOTS) {
+    const id = progress.roomLayout?.[slot];
+    const catalogItem = roomItemById(id);
+    if (catalogItem?.slot === slot && seen.has(id)) roomLayout[slot] = id;
+  }
+
+  const savedJourney = progress.journeys?.welcomeHome;
+  const welcomeHome = {
+    step: typeof savedJourney?.step === 'string' ? savedJourney.step : DEFAULT_WELCOME_HOME.step,
+    completed: savedJourney?.completed === true,
+  };
+
+  return {
+    ...progress,
+    roomUnlocked: progress.roomUnlocked === true,
+    roomInventory: inventory,
+    roomLayout,
+    journeys: {
+      ...(progress.journeys && typeof progress.journeys === 'object' ? progress.journeys : {}),
+      welcomeHome,
+    },
+  };
+}
+
+function unchanged(progress, reason) {
+  return { progress, changed: false, reason };
+}
+
+export function unlockRoomItem(progress, itemId) {
+  if (!roomItemById(itemId)) return unchanged(progress, 'unknown-item');
+  if (progress.roomInventory.includes(itemId)) return unchanged(progress, 'already-owned');
+  return {
+    progress: { ...progress, roomInventory: [...progress.roomInventory, itemId] },
+    changed: true,
+    reason: 'unlocked',
+  };
+}
+
+export function equipRoomItem(progress, slotId, itemId) {
+  if (!ROOM_SLOTS.includes(slotId)) return unchanged(progress, 'unknown-slot');
+  if (!progress.roomInventory.includes(itemId)) return unchanged(progress, 'not-owned');
+  const catalogItem = roomItemById(itemId);
+  if (!catalogItem) return unchanged(progress, 'unknown-item');
+  if (catalogItem.slot !== slotId) return unchanged(progress, 'wrong-slot');
+  if (progress.roomLayout[slotId] === itemId) return unchanged(progress, 'equipped');
+  return {
+    progress: { ...progress, roomLayout: { ...progress.roomLayout, [slotId]: itemId } },
+    changed: true,
+    reason: 'equipped',
+  };
+}
+
+export function removeRoomItem(progress, slotId) {
+  if (!ROOM_SLOTS.includes(slotId)) return unchanged(progress, 'unknown-slot');
+  if (progress.roomLayout[slotId] == null) return unchanged(progress, 'already-empty');
+  return {
+    progress: { ...progress, roomLayout: { ...progress.roomLayout, [slotId]: null } },
+    changed: true,
+    reason: 'removed',
+  };
+}
+
+const WELCOME_HOME_TRANSITIONS = Object.freeze({
+  'meet-front-desk': Object.freeze({ event: 'desk-met', step: 'do-first-activity' }),
+  'do-first-activity': Object.freeze({ event: 'eligible-activity', step: 'receive-decoration' }),
+  'receive-decoration': Object.freeze({ event: 'decoration-received', step: 'enter-room' }),
+  'enter-room': Object.freeze({ event: 'room-entered', step: 'place-decoration' }),
+  'place-decoration': Object.freeze({ event: 'sunny-rug-placed', step: 'complete', completed: true }),
+});
+
+export function advanceWelcomeHome(progress, event) {
+  const current = progress.journeys?.welcomeHome ?? DEFAULT_WELCOME_HOME;
+  const transition = WELCOME_HOME_TRANSITIONS[current.step];
+  if (current.completed || !transition || transition.event !== event) {
+    return unchanged(progress, 'event-ignored');
+  }
+
+  return {
+    progress: {
+      ...progress,
+      journeys: {
+        ...progress.journeys,
+        welcomeHome: {
+          ...current,
+          step: transition.step,
+          completed: transition.completed === true,
+        },
+      },
+    },
+    changed: true,
+    reason: 'advanced',
+  };
+}
