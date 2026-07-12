@@ -28,6 +28,11 @@ describe('room catalog', () => {
       expect(item.render.accent).toMatch(/^#[0-9A-F]{6}$/i);
     }
   });
+
+  it('defines an exact slide source for both slide decorations', () => {
+    expect(ROOM_CATALOG.filter((item) => item.source === 'slide-first').map((item) => item.id))
+      .toEqual(['splash-rug', 'pool-float-trophy']);
+  });
 });
 
 describe('room progress', () => {
@@ -56,11 +61,36 @@ describe('room progress', () => {
       stickers: ['disco'],
       collectibles: { leaf: 2 },
       roomUnlocked: true,
-      roomInventory: ['sunny-rug'],
+      roomInventory: ['sunny-rug', 'cozy-bed'],
       journeys: { welcomeHome: { step: 'enter-room', completed: false } },
     });
     expect(migrateRoomProgress(migrated, { returningPlayer: true }).roomInventory)
-      .toEqual(['sunny-rug']);
+      .toEqual(['sunny-rug', 'cozy-bed']);
+  });
+
+  it('grants the level-7 bed during migration without duplicating it', () => {
+    const migrated = migrateRoomProgress({
+      level: 7,
+      roomUnlocked: true,
+      roomInventory: ['cozy-bed', 'cozy-bed'],
+      roomLayout: {},
+    });
+
+    expect(migrated.roomInventory).toEqual(['cozy-bed']);
+    expect(migrateRoomProgress(migrated).roomInventory).toEqual(['cozy-bed']);
+  });
+
+  it('repairs invalid welcome journey steps to a recoverable state', () => {
+    const migrated = migrateRoomProgress({
+      level: 7,
+      roomUnlocked: true,
+      roomInventory: ['sunny-rug'],
+      journeys: { welcomeHome: { step: 'teleport-to-roof', completed: false } },
+    });
+
+    expect(migrated.journeys.welcomeHome).toEqual({ step: 'enter-room', completed: false });
+    expect(advanceWelcomeHome(migrated, 'room-entered').progress.journeys.welcomeHome.step)
+      .toBe('place-decoration');
   });
 
   it('repairs duplicates, unknown IDs, and incompatible layout entries', () => {

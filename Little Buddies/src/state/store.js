@@ -13,10 +13,10 @@ import {
   removeRoomItem as removeRoomItemModel,
   advanceWelcomeHome as advanceWelcomeHomeModel,
   dailyRoomRewardForDate,
-  roomRewardForEvent,
+  roomRewardsForEvent,
   roomEntryDecision,
   roomItemName,
-} from '../room/roomModel.js';
+} from './roomProgression.js';
 
 const now = () => performance.now() / 1000;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -178,7 +178,7 @@ export const useGame = create((set, get) => ({
       }
       return { progress: p };
     });
-    crossedLevels.forEach((level) => get().grantRoomReward(`level:${level}`));
+    crossedLevels.forEach((level) => get().grantRoomReward(`level:${level}`, { persist: false }));
     if (coins > 0 && !quiet) sfx('coin');
     get().persist();
   },
@@ -196,12 +196,24 @@ export const useGame = create((set, get) => ({
       text: 'Room item unlocked!', icon: '🎁', gold: true,
     });
   },
-  grantRoomReward(event) {
-    const itemId = roomRewardForEvent(event);
-    if (!itemId) return false;
-    return applyRoomResult(set, get, unlockRoomItemModel(get().progress, itemId), {
-      text: `${roomItemName(itemId)} unlocked for Room 107!`, icon: '🎁', gold: true,
-    });
+  grantRoomReward(event, { persist = true } = {}) {
+    const itemIds = roomRewardsForEvent(event);
+    let progress = get().progress;
+    const unlocked = [];
+    for (const itemId of itemIds) {
+      const result = unlockRoomItemModel(progress, itemId);
+      if (result.changed) {
+        progress = result.progress;
+        unlocked.push(itemId);
+      }
+    }
+    if (!unlocked.length) return false;
+    set({ progress });
+    if (persist) get().persist();
+    unlocked.forEach((itemId) => get().addToast(
+      `${roomItemName(itemId)} unlocked for Room 107!`, '🎁', true,
+    ));
+    return true;
   },
   claimDailyRoomReward(dateString = localDateString()) {
     if (get().progress.flags.roomDailyDate === dateString) return false;

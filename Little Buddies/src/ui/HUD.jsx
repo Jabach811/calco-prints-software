@@ -8,7 +8,7 @@ import { STARTER_PHRASES, UNLOCK_PHRASES, EMOTES, STICKERS } from '../data/dialo
 import { ACTION_COLORS } from '../data/palette.js';
 import { drawPortrait } from './portrait.js';
 import { isMuted, setMuted } from '../systems/audio.js';
-import { WELCOME_OBJECTIVES } from '../room/roomModel.js';
+import { WELCOME_OBJECTIVES } from '../state/roomProgression.js';
 
 const now = () => performance.now() / 1000;
 

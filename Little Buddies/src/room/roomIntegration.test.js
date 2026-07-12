@@ -4,7 +4,7 @@ import {
   createRoomProgress,
   equipRoomItem,
   dailyRoomRewardForDate,
-  roomRewardForEvent,
+  roomRewardsForEvent,
   roomEntryDecision,
   unlockRoomItem,
 } from './roomModel.js';
@@ -168,27 +168,27 @@ it('cleans up a hydrated Home panel flag when Room 107 is still locked', () => {
 });
 
 it.each([
-  ['mailbox:first-open', 'postcard-frame'],
-  ['watering:first-complete', 'flower-pot'],
-  ['slide:first-complete', 'pool-float-trophy'],
-  ['dance:first-clear', 'disco-light'],
-  ['collectible:leaf', 'lucky-leaf'],
-  ['level:7', 'cozy-bed'],
-  ['level:8', 'cloud-bed'],
-  ['dance:grade:A', 'gold-record'],
-  ['dance:grade:S', 'gold-record'],
-])('maps the %s reward event to %s', (event, itemId) => {
-  expect(roomRewardForEvent(event)).toBe(itemId);
+  ['mailbox:first-open', ['postcard-frame']],
+  ['watering:first-complete', ['flower-pot']],
+  ['slide:first-complete', ['splash-rug', 'pool-float-trophy']],
+  ['dance:first-clear', ['disco-light']],
+  ['collectible:leaf', ['lucky-leaf']],
+  ['level:7', ['cozy-bed']],
+  ['level:8', ['cloud-bed']],
+  ['dance:grade:A', ['gold-record']],
+  ['dance:grade:S', ['gold-record']],
+])('maps the %s reward event to %s', (event, itemIds) => {
+  expect(roomRewardsForEvent(event)).toEqual(itemIds);
 });
 
-it('returns null for an unknown room reward event', () => {
-  expect(roomRewardForEvent('unknown:event')).toBeNull();
+it('returns an empty list for an unknown room reward event', () => {
+  expect(roomRewardsForEvent('unknown:event')).toEqual([]);
 });
 
 it('keeps the shared A and S dance reward idempotent through unlockRoomItem', () => {
   const progress = createRoomProgress();
-  const aReward = unlockRoomItem(progress, roomRewardForEvent('dance:grade:A'));
-  const sReward = unlockRoomItem(aReward.progress, roomRewardForEvent('dance:grade:S'));
+  const aReward = unlockRoomItem(progress, roomRewardsForEvent('dance:grade:A')[0]);
+  const sReward = unlockRoomItem(aReward.progress, roomRewardsForEvent('dance:grade:S')[0]);
 
   expect(aReward.changed).toBe(true);
   expect(sReward).toEqual({ progress: aReward.progress, changed: false, reason: 'already-owned' });
@@ -216,8 +216,16 @@ it('grants first-time room rewards at the existing mailbox, watering, slide, and
   useGame.getState().doAction('gardenplot', 'harvest');
 
   expect(useGame.getState().progress.roomInventory).toEqual(expect.arrayContaining([
-    'postcard-frame', 'flower-pot', 'pool-float-trophy', 'lucky-leaf',
+    'postcard-frame', 'flower-pot', 'splash-rug', 'pool-float-trophy', 'lucky-leaf',
   ]));
+});
+
+it('keeps both slide decorations idempotent on repeated reward events', () => {
+  expect(useGame.getState().grantRoomReward('slide:first-complete')).toBe(true);
+  expect(useGame.getState().grantRoomReward('slide:first-complete')).toBe(false);
+  expect(useGame.getState().progress.roomInventory.filter(
+    (id) => id === 'splash-rug' || id === 'pool-float-trophy',
+  )).toEqual(['splash-rug', 'pool-float-trophy']);
 });
 
 it('grants every room reward for levels crossed by a large XP award', () => {
