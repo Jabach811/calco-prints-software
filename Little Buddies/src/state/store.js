@@ -76,7 +76,9 @@ let toastSeq = 0;
 let transport = null;
 let stateTimer = null;
 
-const bootScreen = load('lbw-profile', DEFAULT_PROFILE) ? 'cinematic' : 'creator';
+const savedProfile = load('lbw-profile', DEFAULT_PROFILE);
+const savedProgress = load('lbw-progress', DEFAULT_PROGRESS);
+const bootScreen = savedProfile ? 'cinematic' : 'creator';
 // arm the intro clock before React ever renders — passive effects run too late
 // (the frame pump can advance frames first and would instantly finish the intro)
 if (bootScreen === 'cinematic') startIntro();
@@ -92,8 +94,10 @@ function applyRoomResult(set, get, result, toast) {
 export const useGame = create((set, get) => ({
   // ---------- screens ----------
   screen: bootScreen,
-  profile: migrateProfile(load('lbw-profile', DEFAULT_PROFILE)) || DEFAULT_PROFILE,
-  progress: migrateRoomProgress(load('lbw-progress', DEFAULT_PROGRESS) || { ...DEFAULT_PROGRESS }),
+  profile: migrateProfile(savedProfile) || DEFAULT_PROFILE,
+  progress: migrateRoomProgress(savedProgress || { ...DEFAULT_PROGRESS }, {
+    returningPlayer: Boolean(savedProfile && savedProgress),
+  }),
   roomScene: { open: false, editingSlot: null },
 
   setProfile(profile) {
@@ -217,11 +221,24 @@ export const useGame = create((set, get) => ({
   },
   equipRoomItem(slotId, itemId) {
     let result = equipRoomItemModel(get().progress, slotId, itemId);
+    let completionToast = null;
     if (result.changed && itemId === 'sunny-rug') {
       const journeyResult = advanceWelcomeHomeModel(result.progress, 'sunny-rug-placed');
-      if (journeyResult.changed) result = journeyResult;
+      if (journeyResult.changed) {
+        result = {
+          ...journeyResult,
+          progress: {
+            ...journeyResult.progress,
+            coins: journeyResult.progress.coins + 25,
+            xp: journeyResult.progress.xp + 25,
+          },
+        };
+        completionToast = {
+          text: 'Room 107 ready! +25 coins and +25 XP', icon: '🏠', gold: true,
+        };
+      }
     }
-    return applyRoomResult(set, get, result);
+    return applyRoomResult(set, get, result, completionToast);
   },
   removeRoomItem(slotId) {
     return applyRoomResult(set, get, removeRoomItemModel(get().progress, slotId));

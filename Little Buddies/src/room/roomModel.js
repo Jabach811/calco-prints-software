@@ -53,7 +53,12 @@ export function createRoomProgress() {
   };
 }
 
-export function migrateRoomProgress(progress = {}) {
+export function migrateRoomProgress(progress = {}, { returningPlayer = false } = {}) {
+  const hasRoomSave = progress.roomUnlocked !== undefined
+    || Array.isArray(progress.roomInventory)
+    || progress.roomLayout != null
+    || progress.journeys?.welcomeHome != null;
+  const needsReturningWelcome = returningPlayer && !hasRoomSave;
   const inventory = [];
   const seen = new Set();
   for (const id of Array.isArray(progress.roomInventory) ? progress.roomInventory : []) {
@@ -61,6 +66,10 @@ export function migrateRoomProgress(progress = {}) {
       seen.add(id);
       inventory.push(id);
     }
+  }
+  if (needsReturningWelcome) {
+    seen.add('sunny-rug');
+    inventory.push('sunny-rug');
   }
 
   const roomLayout = { ...EMPTY_LAYOUT };
@@ -72,13 +81,15 @@ export function migrateRoomProgress(progress = {}) {
 
   const savedJourney = progress.journeys?.welcomeHome;
   const welcomeHome = {
-    step: typeof savedJourney?.step === 'string' ? savedJourney.step : DEFAULT_WELCOME_HOME.step,
+    step: typeof savedJourney?.step === 'string'
+      ? savedJourney.step
+      : needsReturningWelcome ? 'enter-room' : DEFAULT_WELCOME_HOME.step,
     completed: savedJourney?.completed === true,
   };
 
   return {
     ...progress,
-    roomUnlocked: progress.roomUnlocked === true,
+    roomUnlocked: progress.roomUnlocked === true || needsReturningWelcome,
     roomInventory: inventory,
     roomLayout,
     journeys: {

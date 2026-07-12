@@ -39,6 +39,30 @@ describe('room progress', () => {
     expect(migrated.roomLayout).toEqual({ bed: null, rug: null, wall: null, shelf: null, trophy: null });
   });
 
+  it('welcomes a returning player with room access and one Sunny Rug', () => {
+    const old = {
+      coins: 205,
+      xp: 40,
+      level: 7,
+      stickers: ['disco'],
+      collectibles: { leaf: 2 },
+    };
+    const migrated = migrateRoomProgress(old, { returningPlayer: true });
+
+    expect(migrated).toMatchObject({
+      coins: 205,
+      xp: 40,
+      level: 7,
+      stickers: ['disco'],
+      collectibles: { leaf: 2 },
+      roomUnlocked: true,
+      roomInventory: ['sunny-rug'],
+      journeys: { welcomeHome: { step: 'enter-room', completed: false } },
+    });
+    expect(migrateRoomProgress(migrated, { returningPlayer: true }).roomInventory)
+      .toEqual(['sunny-rug']);
+  });
+
   it('repairs duplicates, unknown IDs, and incompatible layout entries', () => {
     const migrated = migrateRoomProgress({
       roomInventory: ['sunny-rug', 'sunny-rug', 'missing'],

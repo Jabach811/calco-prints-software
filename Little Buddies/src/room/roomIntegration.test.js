@@ -100,6 +100,30 @@ it('unlocks Room 107 and the Sunny Rug after the first mailbox reward', () => {
   expect(toasts.filter((toast) => toast.text === 'Sunny Rug unlocked for Room 107!')).toHaveLength(1);
 });
 
+it('awards the welcome-home completion reward exactly once', () => {
+  useGame.setState({
+    progress: {
+      ...useGame.getState().progress,
+      coins: 205,
+      xp: 40,
+      roomUnlocked: true,
+      roomInventory: ['sunny-rug'],
+      journeys: { welcomeHome: { step: 'place-decoration', completed: false } },
+    },
+  });
+
+  expect(useGame.getState().equipRoomItem('rug', 'sunny-rug')).toBe(true);
+  expect(useGame.getState().progress).toMatchObject({
+    coins: 230,
+    xp: 65,
+    roomLayout: { rug: 'sunny-rug' },
+    journeys: { welcomeHome: { step: 'complete', completed: true } },
+  });
+
+  expect(useGame.getState().equipRoomItem('rug', 'sunny-rug')).toBe(false);
+  expect(useGame.getState().progress).toMatchObject({ coins: 230, xp: 65 });
+});
+
 it('cleans up a hydrated Home panel flag when entering Room 107', () => {
   useGame.setState({
     homeOpen: true,
