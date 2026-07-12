@@ -1,4 +1,7 @@
 export const ROOM_SLOTS = Object.freeze(['bed', 'rug', 'wall', 'shelf', 'trophy']);
+export const DAILY_ROOM_REWARD_POOL = Object.freeze([
+  'starlight-bed', 'garden-rug', 'buddy-banner', 'glow-mushroom', 'friendship-star',
+]);
 
 const HEX = /^#[0-9A-F]{6}$/i;
 

@@ -1,7 +1,35 @@
-import { ROOM_SLOTS, roomItemById } from './roomCatalog.js';
+import { DAILY_ROOM_REWARD_POOL, ROOM_SLOTS, roomItemById } from './roomCatalog.js';
 
 const EMPTY_LAYOUT = Object.freeze(Object.fromEntries(ROOM_SLOTS.map((slot) => [slot, null])));
 const DEFAULT_WELCOME_HOME = Object.freeze({ step: 'meet-front-desk', completed: false });
+
+export function roomRewardForEvent(event) {
+  const fixed = {
+    'mailbox:first-open': 'postcard-frame',
+    'watering:first-complete': 'flower-pot',
+    'slide:first-complete': 'pool-float-trophy',
+    'dance:first-clear': 'disco-light',
+    'collectible:leaf': 'lucky-leaf',
+    'level:7': 'cozy-bed',
+    'level:8': 'cloud-bed',
+  };
+  if (fixed[event]) return fixed[event];
+  if (event === 'dance:grade:A' || event === 'dance:grade:S') return 'gold-record';
+  return null;
+}
+
+export function dailyRoomRewardForDate(dateString) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString);
+  if (!match) return null;
+  const [, year, month, day] = match;
+  const timestamp = Date.UTC(Number(year), Number(month) - 1, Number(day));
+  const date = new Date(timestamp);
+  if (date.getUTCFullYear() !== Number(year)
+    || date.getUTCMonth() !== Number(month) - 1
+    || date.getUTCDate() !== Number(day)) return null;
+  const dayNumber = Math.floor(timestamp / 86_400_000);
+  return DAILY_ROOM_REWARD_POOL[dayNumber % DAILY_ROOM_REWARD_POOL.length];
+}
 
 export const WELCOME_OBJECTIVES = Object.freeze({
   'meet-front-desk': 'Meet the front-desk buddy',

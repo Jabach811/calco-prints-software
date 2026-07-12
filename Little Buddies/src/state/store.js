@@ -12,11 +12,19 @@ import {
   equipRoomItem as equipRoomItemModel,
   removeRoomItem as removeRoomItemModel,
   advanceWelcomeHome as advanceWelcomeHomeModel,
+  dailyRoomRewardForDate,
+  roomRewardForEvent,
   roomEntryDecision,
 } from '../room/roomModel.js';
+import { roomItemById } from '../room/roomCatalog.js';
 
 const now = () => performance.now() / 1000;
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const localDateString = (date = new Date()) => [
+  date.getFullYear(),
+  String(date.getMonth() + 1).padStart(2, '0'),
+  String(date.getDate()).padStart(2, '0'),
+].join('-');
 
 export const DEFAULT_PROFILE = {
   name: 'Goober',
@@ -135,12 +143,18 @@ export const useGame = create((set, get) => ({
 
   // ---------- rewards / economy ----------
   award({ coins = 0, xp = 0, sticker = null, collectible = null, snack = null, quiet = false }) {
+    const crossedLevels = [];
     set((s) => {
       const p = { ...s.progress };
       p.coins += coins;
       p.xp += xp;
       let leveled = false;
-      while (p.xp >= p.level * 100) { p.xp -= p.level * 100; p.level += 1; leveled = true; }
+      while (p.xp >= p.level * 100) {
+        p.xp -= p.level * 100;
+        p.level += 1;
+        crossedLevels.push(p.level);
+        leveled = true;
+      }
       if (sticker && !p.stickers.includes(sticker)) p.stickers = [...p.stickers, sticker];
       if (collectible) p.collectibles = { ...p.collectibles, [collectible]: (p.collectibles[collectible] || 0) + 1 };
       if (snack) p.snacks = { ...p.snacks, [snack]: (p.snacks[snack] || 0) + 1 };
@@ -160,6 +174,7 @@ export const useGame = create((set, get) => ({
       }
       return { progress: p };
     });
+    crossedLevels.forEach((level) => get().grantRoomReward(`level:${level}`));
     if (coins > 0 && !quiet) sfx('coin');
     get().persist();
   },
@@ -176,6 +191,30 @@ export const useGame = create((set, get) => ({
     return applyRoomResult(set, get, unlockRoomItemModel(get().progress, itemId), {
       text: 'Room item unlocked!', icon: '🎁', gold: true,
     });
+  },
+  grantRoomReward(event) {
+    const itemId = roomRewardForEvent(event);
+    if (!itemId) return false;
+    const catalogItem = roomItemById(itemId);
+    return applyRoomResult(set, get, unlockRoomItemModel(get().progress, itemId), {
+      text: `${catalogItem.name} unlocked for Room 107!`, icon: '🎁', gold: true,
+    });
+  },
+  claimDailyRoomReward(dateString = localDateString()) {
+    if (get().progress.flags.roomDailyDate === dateString) return false;
+    const itemId = dailyRoomRewardForDate(dateString);
+    if (!itemId) return false;
+    const result = unlockRoomItemModel(get().progress, itemId);
+    const progress = {
+      ...(result.changed ? result.progress : get().progress),
+      flags: { ...get().progress.flags, roomDailyDate: dateString },
+    };
+    set({ progress });
+    get().persist();
+    if (result.changed) {
+      get().addToast(`${roomItemById(itemId).name} unlocked for Room 107!`, '🎁');
+    }
+    return result.changed;
   },
   equipRoomItem(slotId, itemId) {
     let result = equipRoomItemModel(get().progress, slotId, itemId);
@@ -384,6 +423,7 @@ export const useGame = create((set, get) => ({
             get().award({ coins: 5, xp: 8 });
             get().addToast('+5 coins — hydration complete!', '💧');
           }
+          get().grantRoomReward('watering:first-complete');
           say(objLine('flowers'));
           get().questStep('water4');
           broadcast();
@@ -427,6 +467,7 @@ export const useGame = create((set, get) => ({
           get().setWorld({ mailboxGift: false });
           get().questStep('mailbox');
           get().advanceWelcomeHome('eligible-activity');
+          get().grantRoomReward('mailbox:first-open');
           setTimeout(() => get().setWorld({ mailboxGift: true }), 90000);
         } else {
           say('Empty. The dragon must be off duty.');
@@ -495,6 +536,7 @@ export const useGame = create((set, get) => ({
         if (get().world.plot === 'grown') {
           get().setWorld({ plot: 'empty' });
           get().award({ coins: 8, xp: 10, collectible: 'leaf' });
+          get().grantRoomReward('collectible:leaf');
           get().addToast('Harvested! +8 coins', '🥕');
           say('Farm to face.');
         } else say('Not ready yet. Keep watering.');
@@ -523,6 +565,7 @@ export const useGame = create((set, get) => ({
         set({ rideRequest: { n: (get().rideRequest?.n || 0) + 1, id: objId } });
         get().setMood('Excited');
         get().questStep('slide');
+        get().grantRoomReward('slide:first-complete');
         break;
       }
       case 'slide:view': { say(objLine('slide')); break; }
@@ -692,6 +735,7 @@ export const useGame = create((set, get) => ({
   checkIn() {
     if (get().checkedIn) return;
     set({ checkedIn: true });
+    get().claimDailyRoomReward();
     get().advanceWelcomeHome('desk-met');
     const s = get();
     const desk = DESK_LINES(s.profile.name);
@@ -772,17 +816,29 @@ export const useGame = create((set, get) => ({
   },
   launchGame(id) { set({ arcade: { open: true, game: id } }); sfx('blip'); },
   quitToArcade() { set({ arcade: { open: true, game: null } }); },
-  finishDance({ grade, song }) {
+  finishDance({ grade, songId, songName }) {
     const firstClear = !get().progress.flags.discoSticker;
     const coins = { S: 25, A: 18, B: 12, C: 5 }[grade] || 5;
     get().award({ coins, xp: 15 });
-    get().addToast(`${song}: grade ${grade}! +${coins} coins`, '🕺');
+    get().addToast(`${songName}: grade ${grade}! +${coins} coins`, '🕺');
+    set((st) => ({
+      progress: {
+        ...st.progress,
+        flags: {
+          ...st.progress.flags,
+          danceClears: { ...st.progress.flags.danceClears, [songId]: true },
+        },
+      },
+    }));
     if (firstClear) {
       set((st) => ({ progress: { ...st.progress, flags: { ...st.progress.flags, discoSticker: true } } }));
       get().award({ sticker: 'disco', xp: 10 });
       get().addToast('Disco Sticker unlocked!', '🪩');
       sfx('tada');
+      get().grantRoomReward('dance:first-clear');
     }
+    if (grade === 'A' || grade === 'S') get().grantRoomReward(`dance:grade:${grade}`);
+    get().persist();
     return { coins, firstClear };
   },
 

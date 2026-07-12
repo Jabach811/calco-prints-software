@@ -3,6 +3,8 @@ import {
   advanceWelcomeHome,
   createRoomProgress,
   equipRoomItem,
+  dailyRoomRewardForDate,
+  roomRewardForEvent,
   roomEntryDecision,
   unlockRoomItem,
 } from './roomModel.js';
@@ -22,9 +24,13 @@ beforeEach(() => {
   vi.useFakeTimers();
   useGame.setState({
     checkedIn: false,
-    progress: { ...createRoomProgress(), quests: [], flags: {} },
+    progress: {
+      ...createRoomProgress(), coins: 205, xp: 40, level: 7, stickers: [],
+      collectibles: {}, snacks: {}, phrases: [], quests: [], flags: {},
+    },
     world: { ...useGame.getState().world, mailboxGift: true },
     toasts: [],
+    cooldowns: {},
     homeOpen: false,
     curtain: null,
     roomScene: { open: false, editingSlot: null },
@@ -110,4 +116,79 @@ it('cleans up a hydrated Home panel flag when Room 107 is still locked', () => {
   expect(useGame.getState().enterRoom()).toBe(false);
   expect(useGame.getState().homeOpen).toBe(false);
   expect(useGame.getState().toasts.at(-1).text).toBe('Meet the front-desk buddy');
+});
+
+it.each([
+  ['mailbox:first-open', 'postcard-frame'],
+  ['watering:first-complete', 'flower-pot'],
+  ['slide:first-complete', 'pool-float-trophy'],
+  ['dance:first-clear', 'disco-light'],
+  ['collectible:leaf', 'lucky-leaf'],
+  ['level:7', 'cozy-bed'],
+  ['level:8', 'cloud-bed'],
+  ['dance:grade:A', 'gold-record'],
+  ['dance:grade:S', 'gold-record'],
+])('maps the %s reward event to %s', (event, itemId) => {
+  expect(roomRewardForEvent(event)).toBe(itemId);
+});
+
+it('returns null for an unknown room reward event', () => {
+  expect(roomRewardForEvent('unknown:event')).toBeNull();
+});
+
+it('keeps the shared A and S dance reward idempotent through unlockRoomItem', () => {
+  const progress = createRoomProgress();
+  const aReward = unlockRoomItem(progress, roomRewardForEvent('dance:grade:A'));
+  const sReward = unlockRoomItem(aReward.progress, roomRewardForEvent('dance:grade:S'));
+
+  expect(aReward.changed).toBe(true);
+  expect(sReward).toEqual({ progress: aReward.progress, changed: false, reason: 'already-owned' });
+});
+
+it('rotates daily room rewards deterministically from an injected local date string', () => {
+  expect(dailyRoomRewardForDate('2026-07-12')).toBe('garden-rug');
+  expect(dailyRoomRewardForDate('2026-07-13')).toBe('buddy-banner');
+  expect(dailyRoomRewardForDate('2026-07-12')).toBe('garden-rug');
+});
+
+it('awards a daily room item once per injected local date', () => {
+  expect(useGame.getState().claimDailyRoomReward('2026-07-12')).toBe(true);
+  expect(useGame.getState().claimDailyRoomReward('2026-07-12')).toBe(false);
+  expect(useGame.getState().claimDailyRoomReward('2026-07-13')).toBe(true);
+  expect(useGame.getState().progress.roomInventory).toEqual(expect.arrayContaining(['garden-rug', 'buddy-banner']));
+});
+
+it('grants first-time room rewards at the existing mailbox, watering, slide, and leaf completion points', () => {
+  useGame.getState().doAction('mailbox', 'open');
+  useGame.getState().doAction('flowerbed-plaza', 'water');
+  vi.advanceTimersByTime(2600);
+  useGame.getState().doAction('slide', 'ride');
+  useGame.setState((state) => ({ world: { ...state.world, plot: 'grown' } }));
+  useGame.getState().doAction('gardenplot', 'harvest');
+
+  expect(useGame.getState().progress.roomInventory).toEqual(expect.arrayContaining([
+    'postcard-frame', 'flower-pot', 'pool-float-trophy', 'lucky-leaf',
+  ]));
+});
+
+it('grants every room reward for levels crossed by a large XP award', () => {
+  useGame.setState((state) => ({ progress: { ...state.progress, level: 6, xp: 590 } }));
+
+  useGame.getState().award({ xp: 900, quiet: true });
+
+  expect(useGame.getState().progress.level).toBe(8);
+  expect(useGame.getState().progress.roomInventory).toEqual(expect.arrayContaining(['cozy-bed', 'cloud-bed']));
+});
+
+it('keeps dance sticker and room rewards separate while using stable song identifiers', () => {
+  const addToast = vi.fn();
+  useGame.setState({ addToast });
+  const result = useGame.getState().finishDance({ grade: 'A', songId: 'bubble-beat', songName: 'Bubble Beat' });
+
+  const { progress } = useGame.getState();
+  expect(result).toEqual({ coins: 18, firstClear: true });
+  expect(progress.stickers).toContain('disco');
+  expect(progress.roomInventory).toEqual(expect.arrayContaining(['disco-light', 'gold-record']));
+  expect(progress.flags.danceClears['bubble-beat']).toBe(true);
+  expect(addToast).toHaveBeenCalledWith('Bubble Beat: grade A! +18 coins', '🕺');
 });

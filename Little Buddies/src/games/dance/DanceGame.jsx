@@ -50,7 +50,11 @@ export function DanceUI() {
     danceSession.active = false;
     danceSession.handle.stop();
     const grade = gradeFor(e.score, maxScore(danceSession.noteCount));
-    const paid = useGame.getState().finishDance({ grade, song: danceSession.track.name });
+    const paid = useGame.getState().finishDance({
+      grade,
+      songId: danceSession.track.id,
+      songName: danceSession.track.name,
+    });
     setResult({ score: e.score, grade, maxCombo: e.maxCombo, counts: { ...e.counts }, ...paid });
     setPhase('results');
   };
