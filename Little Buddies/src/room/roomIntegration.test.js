@@ -103,3 +103,11 @@ it('cleans up a hydrated Home panel flag when entering Room 107', () => {
   expect(useGame.getState().enterRoom()).toBe(true);
   expect(useGame.getState().homeOpen).toBe(false);
 });
+
+it('cleans up a hydrated Home panel flag when Room 107 is still locked', () => {
+  useGame.setState({ homeOpen: true });
+
+  expect(useGame.getState().enterRoom()).toBe(false);
+  expect(useGame.getState().homeOpen).toBe(false);
+  expect(useGame.getState().toasts.at(-1).text).toBe('Meet the front-desk buddy');
+});

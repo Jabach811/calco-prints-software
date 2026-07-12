@@ -207,6 +207,7 @@ export const useGame = create((set, get) => ({
     return applyRoomResult(set, get, result);
   },
   enterRoom() {
+    set({ homeOpen: false });
     const decision = roomEntryDecision(get().progress);
     if (!decision.allowed) {
       get().addToast(decision.objective, '🏠', false);
@@ -214,7 +215,7 @@ export const useGame = create((set, get) => ({
     }
     if (get().curtain) return false;
     initAudio();
-    set({ homeOpen: false, curtain: 'closing' });
+    set({ curtain: 'closing' });
     sfx('whoosh');
     setTimeout(() => {
       setAmbientPaused(true);
